@@ -9,7 +9,7 @@ int main(int argc, char** argv)
         return 1;
     }
     app->Run();
-
+    app->Done();
     return 0;
 }
 

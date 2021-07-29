@@ -3,6 +3,10 @@
 #define RTRApp_H
 #define SDL_MAIN_HANDLED
 #include <sdl/SDL.h>
+#include <stb/stb_image.h>
+#include <sdl/SDL.h>
+#include <iostream>
+#include <glad/glad.h>
 
 class RTRApp {
 public:
@@ -11,6 +15,7 @@ public:
 	int Init();
 	void Run();
 	void Done();
+	void DrawSquare();
 protected:
 	SDL_Window* m_SDLWindow;
 	SDL_Renderer* m_SDLRenderer;
