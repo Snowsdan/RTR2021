@@ -8,6 +8,7 @@ int main(int argc, char** argv)
         std::cout << "ERROR: Failed to init" << std::endl;
         return 1;
     }
+
     app->Run();
     app->Done();
     return 0;

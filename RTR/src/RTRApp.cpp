@@ -8,6 +8,12 @@ int RTRApp::Init() {
 		std::cerr << "RTR Error: Failed to initialize the OpenGL context" << std::endl;
 		return -1;
 	}
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); 
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16); 
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); 
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8); 
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8); 
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
 	m_SDLWindow = SDL_CreateWindow(
 		"Real Time Rendering",
@@ -28,7 +34,7 @@ int RTRApp::Init() {
 		return -3;
 	}
 
-	
+	//glViewport(0, 0, 800, 600);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -39,11 +45,15 @@ int RTRApp::Init() {
 
 
 	return 0;
+
+
 }
 
 void RTRApp::Run() {
-	while (1) {
-		DrawSquare();
+	DrawSquare();
+	while (!quitApp) {
+		CheckInput();
+		
 	}
 }
 
@@ -55,6 +65,16 @@ void RTRApp::Done() {
 	m_SDLWindow = nullptr;
 	m_SDLRenderer = nullptr;
 	m_GLContext = nullptr;
+}
+
+void RTRApp::CheckInput(){
+	const Uint8* keys;
+	SDL_PumpEvents();
+	if (keys = SDL_GetKeyboardState(nullptr)) {
+		if (keys[SDL_SCANCODE_ESCAPE]) {
+			quitApp = true;
+		}
+	}
 }
 
 int RTRApp::DrawSquare() {
@@ -73,12 +93,11 @@ int RTRApp::DrawSquare() {
 	float vertexColours[]{
 	1.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 1.0f,
-	1.0f, 0.0f, 1.0f 
+	0.0f, 0.0f, 1.0f
 	};
 
 	unsigned int faces[] = {
-		0, 1, 3,	//First Triangle
+		0, 3, 1,	//First Triangle
 		1, 2, 3,	//Second Triangle
 	};
 
@@ -141,7 +160,6 @@ int RTRApp::DrawSquare() {
 
 	//check for errors after compiling shader
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
 	if (!success)
 	{
 		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
@@ -191,9 +209,6 @@ int RTRApp::DrawSquare() {
 	//Delete shaders as they are already linked
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-
-	
-
 #pragma endregion
 	glUseProgram(shaderProgram);
 
@@ -202,11 +217,11 @@ int RTRApp::DrawSquare() {
 	//Clean the current buffer
 	glBindVertexArray(0);
 
-	/*glClearColor(1.0, 0.0, 0.0, 1.0);
+	glClearColor(1.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, 800, 600);*/
+	glViewport(0, 0, 800, 600);
 	SDL_GL_SwapWindow(m_SDLWindow);
-	std::cout << "SHAPE DRAWN" << std::endl;
+	//std::cout << "SHAPE DRAWN" << std::endl;
 
 	glDeleteVertexArrays(1, &vertexArrayObject);
 	glDeleteBuffers(1, &vertexBuffer);
