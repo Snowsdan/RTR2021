@@ -1,2 +1,4 @@
 C:\Users\User\Documents\GitHub\RTR2021\RTR\Build\Debug - x64\RTR.exe
 C:\Users\User\Documents\GitHub\RTR2021\RTR\Build\Debug - x64\RTR.pdb
+D:\Github\RTR2021\RTR\Build\Debug - x64\RTR.exe
+D:\Github\RTR2021\RTR\Build\Debug - x64\RTR.pdb

@@ -10,15 +10,12 @@
 class RTRApp {
 public:
 	RTRApp() {
-		m_SDLWindow = nullptr;
-		m_SDLRenderer = nullptr;
-		m_GLContext = nullptr;
-		quitApp = false;
+		
 	};
 	int Init();
 	void Run();
 	void Done();
-	int DrawSquare();
+	void DrawSquare();
 	void CheckInput();
 protected:
 	SDL_Window* m_SDLWindow;
