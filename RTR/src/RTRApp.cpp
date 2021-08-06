@@ -104,9 +104,19 @@ void RTRApp::DrawSquare() {
 	};
 
 	unsigned int faces[] = {
-		0, 2, 1,	//First Triangle
-		0, 3, 2 	    //Second Triangle
+		0, 2,1,  	//First Triangle
+		0, 3, 2
+
 	};
+
+	float vertices[] = {
+		//     points              colours
+		 -0.5f, 0.5f, 0.0f,    1.0f, 1.0f, 0.0f,  //Top Left
+		  0.5f, 0.5f, 0.0f,    0.0f,1.0f, 0.0f, //Top Right
+		 0.5f, -0.5f, 0.0f,    1.0f, 0.0f, 0.0f,//Bottom Right
+		-0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f, //Bottom Left
+	};
+
 
 	//Create buffer for the vertexPoints
 	unsigned int vertexBuffer = 0;
@@ -117,21 +127,21 @@ void RTRApp::DrawSquare() {
 	//Send vertex point data to buffer
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPoints), vertexPoints, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	//Send vertex colour data to buffer
-	glGenBuffers(1, &colourBuffer);
+	/*glGenBuffers(1, &colourBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColours), vertexColours, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColours), vertexColours, GL_STATIC_DRAW);*/
 
 	glGenVertexArrays(1, &vertexArrayObject);
 	glBindVertexArray(vertexArrayObject);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer); 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); 
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	glGenBuffers(1, &faceElementBuffer);
@@ -210,7 +220,7 @@ void RTRApp::DrawSquare() {
 
 	while (!quitApp) {
 		CheckInput();
-		glClearColor(0.5, 0.0, 0.0, 1.0);
+		//glClearColor(0.5, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shaderProgram);
 
@@ -229,12 +239,12 @@ void RTRApp::DrawSquare() {
 
 	glDeleteVertexArrays(1, &vertexArrayObject);
 	glDeleteBuffers(1, &vertexBuffer);
-	glDeleteBuffers(1, &colourBuffer);
+	//glDeleteBuffers(1, &colourBuffer);
 	glDeleteBuffers(1, &faceElementBuffer);
 	glDeleteProgram(shaderProgram);
 	vertexArrayObject = 0;
 	vertexBuffer = 0;
-	colourBuffer = 0;
+	//colourBuffer = 0;
 	faceElementBuffer = 0;
 	shaderProgram = 0;
 
