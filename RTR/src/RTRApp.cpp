@@ -1,5 +1,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "RTRApp.h"
+//#include "RTRShader.h"
+
+
 
 
 int RTRApp::Init() {
@@ -7,6 +10,7 @@ int RTRApp::Init() {
 	m_SDLRenderer = nullptr;
 	m_GLContext = nullptr;
 	quitApp = false;
+	
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		std::cerr << "RTR Error: Failed to initialize the OpenGL context" << std::endl;
@@ -47,6 +51,7 @@ int RTRApp::Init() {
 	glFrontFace(GL_CCW);
 	std::cout << "RTR:MESSAGE: OpenGL version " << GLVersion.major << "." << GLVersion.minor << " initialised." << std::endl;
 
+	shader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
 
 	return 0;
 
@@ -54,11 +59,15 @@ int RTRApp::Init() {
 }
 
 void RTRApp::Run() {
-	//while (!quitApp) {
-		//CheckInput();
-		DrawSquare();
+	//RTRShader* shader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
+	while (!quitApp) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		CheckInput();
 
-	//}
+		shader->Use();
+		DrawSquare();
+		SDL_GL_SwapWindow(m_SDLWindow);
+	}
 }
 
 void RTRApp::Done() {
@@ -87,22 +96,6 @@ void RTRApp::DrawSquare() {
 	int success;				//Indicates success or failure
 	char infoLog[512];			//Storage for the error message
 
-
-	float vertexPoints[] = {
-		-0.5f, 0.5f, 0.0f, //Top Left
-		0.5f, 0.5f, 0.0f, //Top Right
-		0.5f, -0.5f, 0.0f, //Bottom Right
-		-0.5f, -0.5f, 0.0f //Bottom Left
-	};
-
-	float vertexColours[] = {
-		0.5f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f
-
-	};
-
 	unsigned int faces[] = {
 		0, 2,1,  	//First Triangle
 		0, 3, 2
@@ -129,124 +122,45 @@ void RTRApp::DrawSquare() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	//Send vertex colour data to buffer
-	/*glGenBuffers(1, &colourBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColours), vertexColours, GL_STATIC_DRAW);*/
-
+	//Generate vertex array object
 	glGenVertexArrays(1, &vertexArrayObject);
 	glBindVertexArray(vertexArrayObject);
+
+	//Specify attribute locations
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer); 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); 
 	glEnableVertexAttribArray(0);
 
-	//glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	//Declare Element Buffer Object that allows the GPU to read what vertices to use when drawing
 	glGenBuffers(1, &faceElementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, faceElementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
 
+	//Setting Uniforms MUST happen after glUseProgram()
+	//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+	glm::mat4 transformMat = glm::mat4(1.0f);
+	//transformMat = glm::rotate(transformMat, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	transformMat = glm::scale(transformMat, glm::vec3(0.5, 0.5, 0.5));
+	shader->setMat4("transformMat", transformMat);
+
+
+	//Draw the shape
+	glBindVertexArray(vertexArrayObject);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 	
-
-#pragma region Shaders
-	const char* vertexShaderSource = "#version 400\n"
-		"layout (location = 0) in vec3 vertexPoints;\n"
-		"layout (location = 1) in vec3 vertexCol;\n"
-		"out vec3 vertexColour;\n"
-		"void main()\n"
-		"{\n"
-		" vertexColour = vertexCol;\n"
-		" gl_Position = vec4(vertexPoints.x, vertexPoints.y, vertexPoints.z, 1.0);\n"
-		"}\0";
-
-	//Create space for shader and assign the ID
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-	glCompileShader(vertexShader);
-
-	//check for errors after compiling shader
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" <<
-			infoLog << std::endl;
-	}
-
-	const char* fragmentShaderSource = "#version 400\n"
-		"in vec3 vertexColour;\n"
-		"out vec4 fragmentColour;\n"
-		"void main() {\n"
-		"	fragmentColour = vec4(vertexColour,1.0f);\n"
-		"}\0";
-
-	//Create space for fragment shader and assign the ID
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-	glCompileShader(fragmentShader);
-
-	//Check for compilation errors
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" <<
-			infoLog << std::endl;
-		//return -1;
-	}
-
-	//Create space for the shader program, attach the shaders, and link everything
-	unsigned int shaderProgram = 0;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" <<
-			infoLog << std::endl;
-		//return -2;
-	}
-
-	//Delete shaders as they are already linked
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-#pragma endregion
-
-	while (!quitApp) {
-		CheckInput();
-		//glClearColor(0.5, 0.0, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shaderProgram);
-
-		glBindVertexArray(vertexArrayObject);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//Clean the current buffer
-		glBindVertexArray(0);
-
-		SDL_GL_SwapWindow(m_SDLWindow);
-	}
-	
-
-	
-	
-	//std::cout << "SHAPE DRAWN" << std::endl;
-
+	//Clean up
 	glDeleteVertexArrays(1, &vertexArrayObject);
 	glDeleteBuffers(1, &vertexBuffer);
-	//glDeleteBuffers(1, &colourBuffer);
 	glDeleteBuffers(1, &faceElementBuffer);
-	glDeleteProgram(shaderProgram);
 	vertexArrayObject = 0;
 	vertexBuffer = 0;
-	//colourBuffer = 0;
 	faceElementBuffer = 0;
-	shaderProgram = 0;
 
 }
 
