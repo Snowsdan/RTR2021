@@ -52,20 +52,59 @@ int RTRApp::Init() {
 	std::cout << "RTR:MESSAGE: OpenGL version " << GLVersion.major << "." << GLVersion.minor << " initialised." << std::endl;
 
 	shader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
+	camera = new RTRCamera();
 
+	SDL_CaptureMouse(SDL_TRUE);
+	SDL_WarpMouseInWindow(m_SDLWindow, 400, 300);
 	return 0;
 
 
 }
 
 void RTRApp::Run() {
-	//RTRShader* shader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
+
 	while (!quitApp) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		currentTime = SDL_GetTicks();
+		deltaTime = currentTime - lastTime;
+		lastTime = currentTime;
+		
 		CheckInput();
 
+		glm::vec3 cubePositions[] = {
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(2.0f, 5.0f, -15.0f),
+			glm::vec3(-1.5f, -2.2f, -2.5f),
+			glm::vec3(-3.8f, -2.0f, -12.3f),
+			glm::vec3(2.4f, -0.4f, -3.5f),
+			glm::vec3(-1.7f, 3.0f, -7.5f),
+			glm::vec3(1.3f, -2.0f, -2.5f),
+			glm::vec3(1.5f, 2.0f, -2.5f),
+			glm::vec3(1.5f, 0.2f, -1.5f),
+			glm::vec3(-1.3f, 1.0f, -1.5f)
+		};
+
+		shader->setMat4("view", camera->GetViewMatrix());
+
+		//Make multiple cubes and give them different translations
+		for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
+			glm::mat4 modelMat = glm::mat4(1.0f);
+			modelMat = glm::translate(modelMat, cubePositions[i]);
+			//modelMat = glm::rotate(modelMat, ((float)SDL_GetTicks() / 2000) * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0));
+			shader->setMat4("model", modelMat);
+
+			DrawCube();
+
+		}
+
+
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
+			100.0f);
+		shader->setMat4("projection", projection);
+
 		shader->Use();
-		DrawSquare();
 		SDL_GL_SwapWindow(m_SDLWindow);
 	}
 }
@@ -81,33 +120,106 @@ void RTRApp::Done() {
 }
 
 void RTRApp::CheckInput(){
-	const Uint8* keys;
-	SDL_PumpEvents();
-	if (keys = SDL_GetKeyboardState(nullptr)) {
-		if (keys[SDL_SCANCODE_ESCAPE]) {
-			quitApp = true;
+
+	SDL_Event event;
+	//Returns 1(true) if there is an event in the queue
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+			case SDLK_ESCAPE:
+				quitApp = true;
+				break;
+			case SDLK_w:
+				camera->MoveCameraForward(deltaTime);
+				break;
+			case SDLK_a:
+				camera->MoveCameraLeft(deltaTime);
+				break;
+			case SDLK_s:
+				camera->MoveCameraBack(deltaTime);
+				break;
+			case SDLK_d:
+				camera->MoveCameraRight(deltaTime);
+				break;
+			}
+			
+		case SDL_MOUSEMOTION:
+			camera->RotateCamera();
+			break;
 		}
 	}
 }
 
-void RTRApp::DrawSquare() {
+void RTRApp::DrawCube() {
 
 	//Variables for error checking
 	int success;				//Indicates success or failure
 	char infoLog[512];			//Storage for the error message
 
 	unsigned int faces[] = {
-		0, 2,1,  	//First Triangle
-		0, 3, 2
-
+		//Front face indices
+		0, 2,1,  	
+		0, 3, 2,
+		//Left face indices
+		4, 6, 5,
+		4, 7, 6,
+		//Back face indices
+		8, 10, 9,
+		8, 11, 10,
+		//Right face indices
+		12, 14, 13,
+		12, 15, 14,
+		////Top face indices
+		16, 18, 17,
+		16, 19, 18,
+		////Bottom face indices
+		20, 22, 21,
+		20, 23, 22
 	};
 
 	float vertices[] = {
+		//Front Face
 		//     points              colours
-		 -0.5f, 0.5f, 0.0f,    1.0f, 1.0f, 0.0f,  //Top Left
-		  0.5f, 0.5f, 0.0f,    0.0f,1.0f, 0.0f, //Top Right
-		 0.5f, -0.5f, 0.0f,    1.0f, 0.0f, 0.0f,//Bottom Right
-		-0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f, //Bottom Left
+		 -0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 0.0f, //Top Left - 0
+		  0.5f, 0.5f, 0.5f,    0.0f,1.0f, 0.0f, //Top Right - 1
+		 0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 2
+		-0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 3
+
+		//Left Face
+		//     points              colours
+		 -0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 4
+		-0.5f, 0.5f, 0.5f,    0.0f,1.0f, 0.0f, //Top Right - 5
+	   -0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 6
+		-0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 7
+
+		//Back Face
+		//     points              colours
+		-0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 8
+	     0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 9
+	    0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
+	   -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 11
+
+		//Right Face
+		//     points              colours
+		0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 12
+	   0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 13
+	   0.5f, -0.5f,-0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 14
+	   0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 15
+
+		//Top Face
+		//     points              colours
+		-0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 16
+		 0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 17
+		  0.5f, 0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 18
+		 -0.5f, 0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 19
+
+		//Bottom Face
+		//     points              colours
+		0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 20
+	   -0.5f, -0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 21
+		-0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 22
+		 0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 23
 	};
 
 
@@ -139,19 +251,9 @@ void RTRApp::DrawSquare() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, faceElementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
 
-	//Setting Uniforms MUST happen after glUseProgram()
-	//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
-	glm::mat4 transformMat = glm::mat4(1.0f);
-	//transformMat = glm::rotate(transformMat, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	transformMat = glm::scale(transformMat, glm::vec3(0.5, 0.5, 0.5));
-	shader->setMat4("transformMat", transformMat);
-
-
 	//Draw the shape
 	glBindVertexArray(vertexArrayObject);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, sizeof(faces) / sizeof(faces[0]), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	
 	//Clean up
@@ -163,4 +265,14 @@ void RTRApp::DrawSquare() {
 	faceElementBuffer = 0;
 
 }
+
+
+
+	
+
+	
+	
+
+
+
 

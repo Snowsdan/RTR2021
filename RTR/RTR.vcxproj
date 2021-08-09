@@ -22,10 +22,12 @@
     <ClCompile Include="Include\glad\glad.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RTRApp.cpp" />
+    <ClCompile Include="src\RTRCamera.cpp" />
     <ClCompile Include="src\RTRShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\RTRApp.h" />
+    <ClInclude Include="src\RTRCamera.h" />
     <ClInclude Include="src\RTRShader.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
