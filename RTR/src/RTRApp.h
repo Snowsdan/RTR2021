@@ -20,7 +20,6 @@ public:
 	void Done();
 	void DrawCube();
 	void CheckInput();
-	void HandleCamera();
 
 	float deltaTime = 0;
 	float currentTime = 0;
