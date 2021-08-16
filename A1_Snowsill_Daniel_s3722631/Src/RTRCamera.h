@@ -28,7 +28,7 @@ protected:
 
 	float yaw = -90;
 	float pitch = 0;
-	float cameraSpeed = 0.05f;
+	float cameraSpeed = 0.01f;
 	float lastX = 0, lastY = 0;
 	int xPos, yPos;
 

@@ -37,7 +37,7 @@ void RTRCamera::RotateCamera() {
 	lastX = xPos;
 	lastY = yPos;
 
-	float sensitivity = 0.1f;
+	float sensitivity = 0.15f;
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 

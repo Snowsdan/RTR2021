@@ -6,19 +6,22 @@
 // RMIT University, COSC1226: Real-Time Rendering and 3D Game Programming
 //-----------------------------------------------------------------------------
 #pragma once
-#define GLT_IMPLEMENTATION
-
+#include "RTRShader.h"
+#include "RTRCamera.h"
 #include <string>
 #include <iostream>
 #include <glad/glad.h>
 #include <sdl/SDL.h>
 #include <stb/stb_image.h>
+#define GLT_IMPLEMENTATION
 #include <gltext/gltext.h>
 
 
-#include "RTRShader.h"
-#include "RTRCamera.h"
-
+struct Cube {
+    float size;
+    glm::vec3 position;
+    std::list<Cube> childCubes;
+};
 class RTRApp
 {
 public:
@@ -31,10 +34,13 @@ public:
         return true;
     }
 
-    void DrawCube();
+    void DrawCube(float size);
     void CheckInput();
     void RenderFrame();
     void RenderOSD();
+
+    std::list<Cube>* GenCubes();
+    void increaseSponge();
 
 protected:
     std::string m_MainWindowTitle;
@@ -53,4 +59,9 @@ protected:
     
     RTRShader* shader;
     RTRCamera* camera;
+
+    std::list<Cube> spongeList;
 };
+
+
+

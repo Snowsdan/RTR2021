@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <list>
 class RTRShader
 {
 public:
@@ -25,5 +26,8 @@ public:
 	void setFloat(const char* name, float value) const;
 	void setMat4(const char* name, const glm::mat4& mat)const;
 
+	
+
 };
+
 #endif

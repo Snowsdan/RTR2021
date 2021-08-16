@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------------
 
 #define STB_IMAGE_IMPLEMENTATION
-
 #include "RTRApp.h"
 
 RTRApp::RTRApp(const char* title, bool fullscreen, int width, int height)
@@ -94,7 +93,9 @@ int RTRApp::Init()
 	camera = new RTRCamera();
 
 	SDL_CaptureMouse(SDL_TRUE);
-	SDL_WarpMouseInWindow(m_SDLWindow, 400, 300);
+	//SDL_WarpMouseInWindow(m_SDLWindow, 400, 300);
+
+	gltInit();
 	
 	
 	return 0;
@@ -112,7 +113,7 @@ void RTRApp::Run()
 
 void RTRApp::Done()
 {
-	//gltTerminate();
+	gltTerminate();
 
     SDL_GL_DeleteContext(m_GLContext);
     SDL_DestroyRenderer(m_SDLRenderer);
@@ -125,58 +126,30 @@ void RTRApp::Done()
 
 void RTRApp::RenderFrame()
 {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, windowWidth, windowHeight);
-
+	
 	CheckInput();
-
-	RenderOSD();
-
-	glm::vec3 cubePositions[] = {
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3(2.0f, 5.0f, -15.0f),
-			glm::vec3(-1.5f, -2.2f, -2.5f),
-			glm::vec3(-3.8f, -2.0f, -12.3f),
-			glm::vec3(2.4f, -0.4f, -3.5f),
-			glm::vec3(-1.7f, 3.0f, -7.5f),
-			glm::vec3(1.3f, -2.0f, -2.5f),
-			glm::vec3(1.5f, 2.0f, -2.5f),
-			glm::vec3(1.5f, 0.2f, -1.5f),
-			glm::vec3(-1.3f, 1.0f, -1.5f)
-	};
-
 
 	//Render Objects
 	shader->setMat4("view", camera->GetViewMatrix());
-
-	//Make multiple cubes and give them different translations
-	for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		modelMat = glm::translate(modelMat, cubePositions[i]);
-		//modelMat = glm::rotate(modelMat, ((float)SDL_GetTicks() / 2000) * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0));
-		shader->setMat4("model", modelMat);
-
-		DrawCube();
-
-	};
-
 
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
 		100.0f);
 	shader->setMat4("projection", projection);
-
 	shader->Use();
+	GenCubes();
+
+	//RenderOSD();
+	
 	SDL_GL_SwapWindow(m_SDLWindow);
 }
 
-void RTRApp::DrawCube() {
 
-	//Variables for error checking
-	int success;				//Indicates success or failure
-	char infoLog[512];			//Storage for the error message
-
+void RTRApp::DrawCube(float size) {
+	float radius = size / 2;
 	unsigned int faces[] = {
 		//Front face indices
 		0, 2,1,
@@ -185,8 +158,8 @@ void RTRApp::DrawCube() {
 		4, 6, 5,
 		4, 7, 6,
 		//Back face indices
-		8, 10, 9,
-		8, 11, 10,
+		9, 10, 8,
+		8, 10, 11,
 		//Right face indices
 		12, 14, 13,
 		12, 15, 14,
@@ -201,45 +174,45 @@ void RTRApp::DrawCube() {
 	float vertices[] = {
 		//Front Face
 		//     points              colours
-		 -0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 0.0f, //Top Left - 0
-		  0.5f, 0.5f, 0.5f,    0.0f,1.0f, 0.0f, //Top Right - 1
-		 0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 2
-		-0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 3
+		 -radius, radius, radius,    1.0f, 1.0f, 0.0f, //Top Left - 0
+		  radius, radius, radius,    0.0f,1.0f, 0.0f, //Top Right - 1
+		 radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 2
+		-radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 3
 
 		//Left Face
 		//     points              colours
-		 -0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 4
-		-0.5f, 0.5f, 0.5f,    0.0f,1.0f, 0.0f, //Top Right - 5
-	   -0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 6
-		-0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 7
+		 -radius, radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 4
+		-radius, radius, radius,    0.0f,1.0f, 0.0f, //Top Right - 5
+	   -radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 6
+		-radius, -radius, -radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 7
 
 		//Back Face
 		//     points              colours
-		-0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 8
-		 0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 9
-		0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
-	   -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 11
+		-radius, radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 8
+		 radius, radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 9
+		radius, -radius, -radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
+	   -radius, -radius, -radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 11
 
 		//Right Face
 		//     points              colours
-		0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 12
-	   0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 13
-	   0.5f, -0.5f,-0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 14
-	   0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 15
+		radius, radius, radius,    1.0f, 1.0f, 0.0f,  //Top Left - 12
+	   radius, radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 13
+	   radius, -radius,-radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 14
+	   radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 15
 
 		//Top Face
 		//     points              colours
-		-0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 16
-		 0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 17
-		  0.5f, 0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 18
-		 -0.5f, 0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 19
+		-radius, radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 16
+		 radius, radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 17
+		  radius, radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 18
+		 -radius, radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 19
 
 		//Bottom Face
 		//     points              colours
-		0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 20
-	   -0.5f, -0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 21
-		-0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 22
-		 0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 23
+		radius, -radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 20
+	   -radius, -radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 21
+		-radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 22
+		 radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 23
 	};
 
 
@@ -323,11 +296,42 @@ void RTRApp::RenderOSD()
 {
 	GLTtext* hello_msg = gltCreateText();
 	gltSetText(hello_msg, "Hello World!");
-	gltBeginDraw();
 
+	gltBeginDraw();
 	gltColor(0.0f, 1.0f, 0.0f, 1.0f);
 	gltDrawText2D(hello_msg, 10, 10, 2.0);
 	gltEndDraw();
 
 	gltDeleteText(hello_msg);
+}
+
+std::list<Cube>* RTRApp::GenCubes(Cube* currentCube) {
+	std::list<Cube>* newCubes = new std::list<Cube>;
+	for (float x = -1; x <= 1; x += 1) {
+		for (float y = -1; y <= 1; y += 1) {
+			for (float z = -1; z <= 1; z += 1) {
+				int sum = abs(x) + abs(y) + abs(z);
+
+				if (sum > 1) {
+					float size = 1;
+					float newSize = size / 3;
+					glm::mat4 modelMat = glm::mat4(1.0f);
+					modelMat = glm::translate(modelMat, glm::vec3(x * newSize, y * newSize, z * newSize));
+					shader->setMat4("model", modelMat);
+					DrawCube(newSize);
+
+					newCubes->push_back();
+				}
+
+			}
+		}
+	}
+	return newCubes;
+}
+
+void RTRApp::increaseSponge() {
+	std::list<Cube>* newCubes = new std::list<Cube>;
+
+	
+	
 }
