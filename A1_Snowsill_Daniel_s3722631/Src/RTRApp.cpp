@@ -103,6 +103,11 @@ int RTRApp::Init()
 
 void RTRApp::Run()
 {
+	Cube* BaseCube = new Cube(1.0, glm::vec3(0,0,0));
+	spongeList->splice(spongeList->end(), *GenCubes(BaseCube));
+	IncreaseSponge();
+
+	std::cout << "SPONGE SIZE: " << spongeList->size() << std::endl;
     while (!quitApp) {
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
@@ -140,8 +145,8 @@ void RTRApp::RenderFrame()
 		100.0f);
 	shader->setMat4("projection", projection);
 	shader->Use();
-	GenCubes();
 
+	DrawSponge();
 	//RenderOSD();
 	
 	SDL_GL_SwapWindow(m_SDLWindow);
@@ -305,14 +310,29 @@ void RTRApp::RenderOSD()
 	gltDeleteText(hello_msg);
 }
 
-std::list<Cube>* RTRApp::GenCubes(Cube* currentCube) {
-	std::list<Cube>* newCubes = new std::list<Cube>;
+std::list<Cube*>* RTRApp::GenCubes(Cube* currentCube) {
+	std::list<Cube*>* newCubes = new std::list<Cube*>;
 	for (float x = -1; x <= 1; x += 1) {
 		for (float y = -1; y <= 1; y += 1) {
 			for (float z = -1; z <= 1; z += 1) {
 				int sum = abs(x) + abs(y) + abs(z);
-
 				if (sum > 1) {
+					float size = currentCube->size;
+					float newSize = size / 3;
+
+					glm::mat4 modelMat = glm::mat4(1.0f);
+					glm::vec3 posVector = glm::vec3(
+						currentCube->position.x + x * newSize,
+						currentCube->position.y + y * newSize,
+						currentCube->position.z + z * newSize);
+					modelMat = glm::translate(modelMat, posVector);
+
+					Cube* newCube = new Cube(newSize, posVector);
+					//std::cout << newCube->size << std::endl;
+
+					newCubes->push_front(newCube);;
+				}
+				/*if (sum > 1) {
 					float size = 1;
 					float newSize = size / 3;
 					glm::mat4 modelMat = glm::mat4(1.0f);
@@ -321,17 +341,43 @@ std::list<Cube>* RTRApp::GenCubes(Cube* currentCube) {
 					DrawCube(newSize);
 
 					newCubes->push_back();
-				}
+				}*/
 
 			}
 		}
 	}
+	std::cout << "CUBES SIZE" << newCubes->size() << std::endl;
 	return newCubes;
 }
 
-void RTRApp::increaseSponge() {
-	std::list<Cube>* newCubes = new std::list<Cube>;
+void RTRApp::IncreaseSponge() {
+	std::list<Cube*>* newCubes = new std::list<Cube*>;
 
-	
+	for (Cube* currentCube : *spongeList) {
+		
+		newCubes->splice(newCubes->end(),*GenCubes(currentCube));
+	}
+	std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
+	spongeList = newCubes;
 	
 }
+
+void RTRApp::DrawSponge() {
+	for (Cube* currentCube : *spongeList) {
+		//std::cout << "RUN" << std::endl;
+
+		glm::mat4 modelMat = glm::mat4(1.0f);
+		modelMat = glm::translate(modelMat, currentCube->position);
+		shader->setMat4("model", modelMat);
+		DrawCube(currentCube->size);
+
+	}
+}
+
+//void RTRApp::MergeLists(std::list<Cube*>* firstList, std::list<Cube*>* secondList) {
+
+
+
+//}
+
+

@@ -18,7 +18,14 @@
 
 
 struct Cube {
+
+    Cube(float size, glm::vec3 posVec) {
+        this->size = size;
+        position = posVec;
+    }
+
     float size;
+    //glm::mat4 positionMat;
     glm::vec3 position;
     std::list<Cube> childCubes;
 };
@@ -39,8 +46,10 @@ public:
     void RenderFrame();
     void RenderOSD();
 
-    std::list<Cube>* GenCubes();
-    void increaseSponge();
+    std::list<Cube*>* GenCubes(Cube* currentCube);
+    void IncreaseSponge();
+    void DrawSponge();
+    //std::list<Cube*>* MergeLists(std::list<Cube*>* firstList, std::list<Cube*>* secondList);
 
 protected:
     std::string m_MainWindowTitle;
@@ -60,7 +69,7 @@ protected:
     RTRShader* shader;
     RTRCamera* camera;
 
-    std::list<Cube> spongeList;
+    std::list<Cube*>* spongeList = new std::list<Cube*>;
 };
 
 
