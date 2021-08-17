@@ -24,12 +24,16 @@
     <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\RTRCamera.cpp" />
     <ClCompile Include="Src\RTRShader.cpp" />
+    <ClCompile Include="Src\Scene2.cpp" />
+    <ClCompile Include="Src\SceneBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\gltext\gltext.h" />
     <ClInclude Include="Src\RTRApp.h" />
     <ClInclude Include="Src\RTRCamera.h" />
     <ClInclude Include="Src\RTRShader.h" />
+    <ClInclude Include="Src\Scene2.h" />
+    <ClInclude Include="Src\SceneBase.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

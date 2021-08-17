@@ -30,6 +30,12 @@
     <ClCompile Include="Src\RTRShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Scene2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\SceneBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\RTRApp.h">
@@ -43,6 +49,12 @@
     </ClInclude>
     <ClInclude Include="Include\gltext\gltext.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\SceneBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene2.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

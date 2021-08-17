@@ -16,19 +16,27 @@
 #define GLT_IMPLEMENTATION
 #include <gltext/gltext.h>
 
+#include "Scene2.h"
 
-struct Cube {
 
-    Cube(float size, glm::vec3 posVec) {
-        this->size = size;
-        position = posVec;
-    }
+//struct Cube {
+//
+//    Cube(float size, glm::vec3 posVec) {
+//        this->size = size;
+//        position = posVec;
+//    }
+//
+//    float size;
+//    //glm::mat4 positionMat;
+//    glm::vec3 position;
+//    std::list<Cube> childCubes;
+//};
 
-    float size;
-    //glm::mat4 positionMat;
-    glm::vec3 position;
-    std::list<Cube> childCubes;
-};
+//enum Scene {
+//    SceneOne,SceneTwo,SceneThree,SceneFour,SceneFive,SceneSix
+//};
+
+
 class RTRApp
 {
 public:
@@ -68,6 +76,11 @@ protected:
     
     RTRShader* shader;
     RTRCamera* camera;
+
+
+    SceneBase* currentScene;
+    Scene2* scene2 = new Scene2();
+
 
     std::list<Cube*>* spongeList = new std::list<Cube*>;
 };

@@ -107,6 +107,8 @@ void RTRApp::Run()
 	spongeList->splice(spongeList->end(), *GenCubes(BaseCube));
 	IncreaseSponge();
 
+	currentScene = scene2;
+
 	std::cout << "SPONGE SIZE: " << spongeList->size() << std::endl;
     while (!quitApp) {
 		currentTime = SDL_GetTicks();
@@ -140,13 +142,16 @@ void RTRApp::RenderFrame()
 	//Render Objects
 	shader->setMat4("view", camera->GetViewMatrix());
 
-	glm::mat4 projection;
+	/*glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
 		100.0f);
 	shader->setMat4("projection", projection);
-	shader->Use();
+	shader->Use();*/
 
 	DrawSponge();
+
+	currentScene->RenderScene();
+
 	//RenderOSD();
 	
 	SDL_GL_SwapWindow(m_SDLWindow);
@@ -332,16 +337,6 @@ std::list<Cube*>* RTRApp::GenCubes(Cube* currentCube) {
 
 					newCubes->push_front(newCube);;
 				}
-				/*if (sum > 1) {
-					float size = 1;
-					float newSize = size / 3;
-					glm::mat4 modelMat = glm::mat4(1.0f);
-					modelMat = glm::translate(modelMat, glm::vec3(x * newSize, y * newSize, z * newSize));
-					shader->setMat4("model", modelMat);
-					DrawCube(newSize);
-
-					newCubes->push_back();
-				}*/
 
 			}
 		}
