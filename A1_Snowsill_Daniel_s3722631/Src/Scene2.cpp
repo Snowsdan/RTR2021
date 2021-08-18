@@ -1,37 +1,43 @@
 #include "Scene2.h"
 
 
+
 void Scene2::InitialiseScene() {
-	Cube* BaseCube = new Cube(1.0, glm::vec3(0, 0, 0));
-	spongeList->splice(spongeList->end(), *GenCubes(BaseCube));
-	shader = shader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
-	//IncreaseSponge();
+	GenerateNewSponge();
+
 }
 
 void Scene2::DrawSponge() {
 	for (Cube* currentCube : *spongeList) {
-		//std::cout << "RUN" << std::endl;
-
+	
 		glm::mat4 modelMat = glm::mat4(1.0f);
 		modelMat = glm::translate(modelMat, currentCube->position);
-		shader->setMat4("model", modelMat);
+		sceneTwoShader->setMat4("model", modelMat);
 		DrawCube(currentCube->size);
 
 	}
 }
-void Scene2::RenderScene() {
+void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix) {
+
+	//std::cout << "VIEW" << std::endl;
+
+	sceneTwoShader->setMat4("view", cameraMatrix);
 
 
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
-		100.0f);
-	shader->setMat4("projection", projection);
-	shader->Use();
+	//std::cout << "PROJECTION" << std::endl;
+
+
+	sceneTwoShader->setMat4("projection", projectionMatrix);
+	sceneTwoShader->Use();
+
+	DrawSponge();
 
 }
 
 void Scene2::DrawCube(float size) {
 	float radius = size / 2;
+	//std::cout << "START DRAWING" << std::endl;
+
 	unsigned int faces[] = {
 		//Front face indices
 		0, 2,1,
@@ -114,12 +120,13 @@ void Scene2::DrawCube(float size) {
 	glBindVertexArray(vertexArrayObject);
 
 	//Specify attribute locations
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	
 
 	//Declare Element Buffer Object that allows the GPU to read what vertices to use when drawing
 	glGenBuffers(1, &faceElementBuffer);

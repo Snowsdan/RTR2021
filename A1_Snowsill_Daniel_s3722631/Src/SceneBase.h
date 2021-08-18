@@ -27,13 +27,15 @@ class SceneBase {
         virtual void InitialiseScene() = 0;
 		std::list<Cube*>* GenCubes(Cube* currentCube);
 		void IncreaseSponge();
+        void DecreaseSponge();
+        void GenerateNewSponge();
         virtual void DrawSponge() = 0;
-        virtual void RenderScene() = 0;
+        virtual void RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix) = 0;
         virtual void DrawCube(float size) = 0;
         
         
 
         std::list<Cube*>* spongeList = new std::list<Cube*>;
-
+        int spongeLevel = 1;
         //RTRShader* currentShader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
 };

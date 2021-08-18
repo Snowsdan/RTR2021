@@ -89,27 +89,26 @@ int RTRApp::Init()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	shader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
+	
 	camera = new RTRCamera();
-
+	scene2 = new Scene2();
 	SDL_CaptureMouse(SDL_TRUE);
 	//SDL_WarpMouseInWindow(m_SDLWindow, 400, 300);
 
 	gltInit();
 	
-	
+
 	return 0;
 }
 
+
+
 void RTRApp::Run()
 {
-	Cube* BaseCube = new Cube(1.0, glm::vec3(0,0,0));
-	spongeList->splice(spongeList->end(), *GenCubes(BaseCube));
-	IncreaseSponge();
 
 	currentScene = scene2;
+	scene2->InitialiseScene();
 
-	std::cout << "SPONGE SIZE: " << spongeList->size() << std::endl;
     while (!quitApp) {
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
@@ -133,26 +132,21 @@ void RTRApp::Done()
 
 void RTRApp::RenderFrame()
 {
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, windowWidth, windowHeight);
+
+	RenderOSD();
+	CheckInput(); 
 	
-	CheckInput();
-
-	//Render Objects
-	shader->setMat4("view", camera->GetViewMatrix());
-
-	/*glm::mat4 projection;
+	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
 		100.0f);
-	shader->setMat4("projection", projection);
-	shader->Use();*/
 
-	DrawSponge();
 
-	currentScene->RenderScene();
+	currentScene->RenderScene(camera->GetViewMatrix(), projection);
 
-	//RenderOSD();
+	
 	
 	SDL_GL_SwapWindow(m_SDLWindow);
 }
@@ -271,6 +265,7 @@ void RTRApp::DrawCube(float size) {
 
 void RTRApp::CheckInput()
 {
+	
 	SDL_Event event;
 	//Returns 1(true) if there is an event in the queue
 	while (SDL_PollEvent(&event)) {
@@ -292,6 +287,12 @@ void RTRApp::CheckInput()
 			case SDLK_d:
 				camera->MoveCameraRight(deltaTime);
 				break;
+			case SDLK_EQUALS:
+				currentScene->IncreaseSponge();
+				break;
+			case SDLK_MINUS:
+				currentScene->DecreaseSponge();
+				break;
 			}
 
 		case SDL_MOUSEMOTION:
@@ -308,6 +309,7 @@ void RTRApp::RenderOSD()
 	gltSetText(hello_msg, "Hello World!");
 
 	gltBeginDraw();
+
 	gltColor(0.0f, 1.0f, 0.0f, 1.0f);
 	gltDrawText2D(hello_msg, 10, 10, 2.0);
 	gltEndDraw();
@@ -315,64 +317,7 @@ void RTRApp::RenderOSD()
 	gltDeleteText(hello_msg);
 }
 
-std::list<Cube*>* RTRApp::GenCubes(Cube* currentCube) {
-	std::list<Cube*>* newCubes = new std::list<Cube*>;
-	for (float x = -1; x <= 1; x += 1) {
-		for (float y = -1; y <= 1; y += 1) {
-			for (float z = -1; z <= 1; z += 1) {
-				int sum = abs(x) + abs(y) + abs(z);
-				if (sum > 1) {
-					float size = currentCube->size;
-					float newSize = size / 3;
-
-					glm::mat4 modelMat = glm::mat4(1.0f);
-					glm::vec3 posVector = glm::vec3(
-						currentCube->position.x + x * newSize,
-						currentCube->position.y + y * newSize,
-						currentCube->position.z + z * newSize);
-					modelMat = glm::translate(modelMat, posVector);
-
-					Cube* newCube = new Cube(newSize, posVector);
-					//std::cout << newCube->size << std::endl;
-
-					newCubes->push_front(newCube);;
-				}
-
-			}
-		}
-	}
-	std::cout << "CUBES SIZE" << newCubes->size() << std::endl;
-	return newCubes;
-}
-
-void RTRApp::IncreaseSponge() {
-	std::list<Cube*>* newCubes = new std::list<Cube*>;
-
-	for (Cube* currentCube : *spongeList) {
-		
-		newCubes->splice(newCubes->end(),*GenCubes(currentCube));
-	}
-	std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
-	spongeList = newCubes;
-	
-}
-
-void RTRApp::DrawSponge() {
-	for (Cube* currentCube : *spongeList) {
-		//std::cout << "RUN" << std::endl;
-
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		modelMat = glm::translate(modelMat, currentCube->position);
-		shader->setMat4("model", modelMat);
-		DrawCube(currentCube->size);
-
-	}
-}
-
-//void RTRApp::MergeLists(std::list<Cube*>* firstList, std::list<Cube*>* secondList) {
 
 
-
-//}
 
 

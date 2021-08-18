@@ -25,16 +25,49 @@ std::list<Cube*>* SceneBase::GenCubes(Cube* currentCube) {
 			}
 		}
 	}
-	std::cout << "CUBES SIZE" << newCubes->size() << std::endl;
+	//std::cout << "CUBES SIZE" << newCubes->size() << std::endl;
 	return newCubes;
 }
 void SceneBase::IncreaseSponge() {
+	
 	std::list<Cube*>* newCubes = new std::list<Cube*>;
 
 	for (Cube* currentCube : *spongeList) {
+		//std::cout << "NEW LEVEL" << std::endl;
 
 		newCubes->splice(newCubes->end(), *GenCubes(currentCube));
 	}
-	std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
+	spongeLevel++;
+	//std::cout << "SPonge LEVEL: " << spongeLevel<< std::endl;
+
+	//std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
 	spongeList = newCubes;
+}
+
+void SceneBase::DecreaseSponge() {
+	if (spongeLevel > 1) {
+		//std::cout << "DECREASE" << std::endl;
+		spongeList->clear();
+		//std::cout << "Sponge List SIze after deletion: " << spongeList->size() << std::endl;
+		GenerateNewSponge();
+
+		int newSpongeLevel = spongeLevel - 1;
+		spongeLevel = 0;
+		
+		
+		//std::cout << "New Sponge LEVEL: " << newSpongeLevel << std::endl;
+
+		for (int i = 1; i < newSpongeLevel; i++) {
+			std::cout << "ADD LEVEL" << std::endl;
+
+			IncreaseSponge();
+		}
+		//std::cout << "Sponge List SIze after decreasing: " <<spongeList->size() << std::endl;
+	}
+	
+}
+
+void SceneBase::GenerateNewSponge() {
+	Cube* BaseCube = new Cube(1.0, glm::vec3(0, 0, 0));
+	spongeList->splice(spongeList->end(), *GenCubes(BaseCube));
 }

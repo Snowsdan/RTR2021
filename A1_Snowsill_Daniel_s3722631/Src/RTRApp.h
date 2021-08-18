@@ -19,19 +19,6 @@
 #include "Scene2.h"
 
 
-//struct Cube {
-//
-//    Cube(float size, glm::vec3 posVec) {
-//        this->size = size;
-//        position = posVec;
-//    }
-//
-//    float size;
-//    //glm::mat4 positionMat;
-//    glm::vec3 position;
-//    std::list<Cube> childCubes;
-//};
-
 //enum Scene {
 //    SceneOne,SceneTwo,SceneThree,SceneFour,SceneFive,SceneSix
 //};
@@ -57,7 +44,7 @@ public:
     std::list<Cube*>* GenCubes(Cube* currentCube);
     void IncreaseSponge();
     void DrawSponge();
-    //std::list<Cube*>* MergeLists(std::list<Cube*>* firstList, std::list<Cube*>* secondList);
+
 
 protected:
     std::string m_MainWindowTitle;
@@ -73,13 +60,12 @@ protected:
     SDL_Window* m_SDLWindow;
     SDL_Renderer* m_SDLRenderer;
     SDL_GLContext m_GLContext;
-    
-    RTRShader* shader;
+
     RTRCamera* camera;
 
 
     SceneBase* currentScene;
-    Scene2* scene2 = new Scene2();
+    SceneBase* scene2;
 
 
     std::list<Cube*>* spongeList = new std::list<Cube*>;
