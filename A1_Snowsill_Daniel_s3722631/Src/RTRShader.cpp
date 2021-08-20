@@ -52,7 +52,7 @@ RTRShader::RTRShader(const char* vertexPath, const char* fragmentPath) {
 	//Vertex Shader
 	unsigned int vertexShader = 0;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexCode, nullptr);
+	glShaderSource(vertexShader, 1, &vertexCode, NULL);
 	glCompileShader(vertexShader);
 
 	//Check for errors after compiling shader
@@ -66,7 +66,7 @@ RTRShader::RTRShader(const char* vertexPath, const char* fragmentPath) {
 
 	//Create space for fragment shader and assign the ID
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragCode, nullptr);
+	glShaderSource(fragmentShader, 1, &fragCode, NULL);
 	glCompileShader(fragmentShader);
 
 	//Check for compilation errors
@@ -116,4 +116,6 @@ void RTRShader::setFloat(const char* name, float value) const {
 }
 void RTRShader::setMat4(const char* name, const glm::mat4& mat)const {
 	glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
+
 }
+

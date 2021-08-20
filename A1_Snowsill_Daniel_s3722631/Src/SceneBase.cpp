@@ -38,7 +38,7 @@ void SceneBase::IncreaseSponge() {
 		newCubes->splice(newCubes->end(), *GenCubes(currentCube));
 	}
 	spongeLevel++;
-	//std::cout << "SPonge LEVEL: " << spongeLevel<< std::endl;
+	std::cout << "SPonge LEVEL: " << spongeLevel<< std::endl;
 
 	//std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
 	spongeList = newCubes;
@@ -52,10 +52,10 @@ void SceneBase::DecreaseSponge() {
 		GenerateNewSponge();
 
 		int newSpongeLevel = spongeLevel - 1;
-		spongeLevel = 0;
+		spongeLevel = 1;
 		
 		
-		//std::cout << "New Sponge LEVEL: " << newSpongeLevel << std::endl;
+		std::cout << "New Sponge LEVEL: " << newSpongeLevel << std::endl;
 
 		for (int i = 1; i < newSpongeLevel; i++) {
 			std::cout << "ADD LEVEL" << std::endl;
@@ -64,10 +64,27 @@ void SceneBase::DecreaseSponge() {
 		}
 		//std::cout << "Sponge List SIze after decreasing: " <<spongeList->size() << std::endl;
 	}
-	
+	std::cout << "SPonge LEVEL: " << spongeLevel << std::endl;
+
 }
 
 void SceneBase::GenerateNewSponge() {
 	Cube* BaseCube = new Cube(1.0, glm::vec3(0, 0, 0));
 	spongeList->splice(spongeList->end(), *GenCubes(BaseCube));
+}
+
+const char* SceneBase::GetSceneName() {
+	return sceneName;
+}
+
+int SceneBase::GetSpongeLevel() {
+	return spongeLevel;
+}
+
+int SceneBase::GetNumVertices() {
+	return numVertices;
+}
+
+int SceneBase::GetNumFaces() {
+	return numFaces;
 }

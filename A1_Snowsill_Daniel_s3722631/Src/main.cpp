@@ -16,6 +16,7 @@ int main(int argc, char** argv)
         std::cout << "RTR:ERROR: Failed to initialise application. Please see error messages for details..." << std::endl;
         return -1;
     };
+    
     app->Run();
     app->Done();
     return 0;

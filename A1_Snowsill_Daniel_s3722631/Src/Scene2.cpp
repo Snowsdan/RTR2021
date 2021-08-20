@@ -20,7 +20,7 @@ void Scene2::DrawSponge() {
 void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix) {
 
 	//std::cout << "VIEW" << std::endl;
-
+	sceneTwoShader->Use();
 	sceneTwoShader->setMat4("view", cameraMatrix);
 
 
@@ -28,15 +28,21 @@ void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix) {
 
 
 	sceneTwoShader->setMat4("projection", projectionMatrix);
-	sceneTwoShader->Use();
-
+	
+	
 	DrawSponge();
+
+	//glUseProgram(0);
 
 }
 
 void Scene2::DrawCube(float size) {
 	float radius = size / 2;
 	//std::cout << "START DRAWING" << std::endl;
+
+	glm::vec3 lightColour(1.0f, 1.0f, 1.0f);
+	glm::vec3 toyColour(1.0f, 0.5f, 0.31f);
+	glm::vec3 result = lightColour * toyColour;
 
 	unsigned int faces[] = {
 		//Front face indices
@@ -62,48 +68,48 @@ void Scene2::DrawCube(float size) {
 	float vertices[] = {
 		//Front Face
 		//     points              colours
-		 -radius, radius, radius,    1.0f, 1.0f, 0.0f, //Top Left - 0
-		  radius, radius, radius,    0.0f,1.0f, 0.0f, //Top Right - 1
+		 -radius, radius, radius,    1.0f, 0.0f, 0.0f, //Top Left - 0
+		  radius, radius, radius,    1.0f,0.0f, 0.0f, //Top Right - 1
 		 radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 2
-		-radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 3
+		-radius, -radius, radius,    1.0f, 0.0f, 0.0f, //Bottom Left - 3
 
 		//Left Face
 		//     points              colours
-		 -radius, radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 4
-		-radius, radius, radius,    0.0f,1.0f, 0.0f, //Top Right - 5
-	   -radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 6
-		-radius, -radius, -radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 7
+	    -radius, radius, -radius,    0.0f, 1.0f, 0.0f,  //Top Left - 4
+		 -radius, radius, radius,    0.0f, 1.0f, 0.0f, //Top Right - 5
+	    -radius, -radius, radius,    0.0f, 1.0f, 0.0f,//Bottom Right - 6
+	   -radius, -radius, -radius,    0.0f, 1.0f, 0.0f, //Bottom Left - 7
 
 		//Back Face
 		//     points              colours
-		-radius, radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 8
-		 radius, radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 9
+		-radius, radius, -radius,    1.0f, 0.0f, 0.0f,  //Top Left - 8
+		 radius, radius, -radius,    1.0f, 0.0f, 0.0f, //Top Right - 9
 		radius, -radius, -radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
-	   -radius, -radius, -radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 11
+	   -radius, -radius, -radius,    1.0f, 0.0f, 0.0f, //Bottom Left - 11
 
 		//Right Face
 		//     points              colours
-		radius, radius, radius,    1.0f, 1.0f, 0.0f,  //Top Left - 12
-	   radius, radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 13
-	   radius, -radius,-radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 14
-	   radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 15
+		  radius, radius, radius,    0.0f, 1.0f, 0.0f,  //Top Left - 12
+	     radius, radius, -radius,    0.0f, 1.0f, 0.0f, //Top Right - 13
+	     radius, -radius,-radius,    0.0f, 1.0f, 0.0f,//Bottom Right - 14
+	     radius, -radius, radius,    0.0f, 1.0f, 0.0f, //Bottom Left - 15
 
 		//Top Face
 		//     points              colours
-		-radius, radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 16
-		 radius, radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 17
-		  radius, radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 18
+		-radius, radius, -radius,    0.0f, 0.0f, 1.0f,  //Top Left - 16
+		 radius, radius, -radius,    0.0f, 0.0f, 1.0f, //Top Right - 17
+		  radius, radius, radius,    0.0f, 0.0f, 1.0f,//Bottom Right - 18
 		 -radius, radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 19
 
 		//Bottom Face
 		//     points              colours
-		radius, -radius, -radius,    1.0f, 1.0f, 0.0f,  //Top Left - 20
-	   -radius, -radius, -radius,    0.0f,1.0f, 0.0f, //Top Right - 21
-		-radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 22
+		radius, -radius, -radius,    0.0f, 0.0f, 1.0f,  //Top Left - 20
+	   -radius, -radius, -radius,    0.0f, 0.0f, 1.0f, //Top Right - 21
+		-radius, -radius, radius,    0.0f, 0.0f, 1.0f,//Bottom Right - 22
 		 radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 23
 	};
 
-
+	
 	//Create buffer for the vertexPoints
 	unsigned int vertexBuffer = 0;
 	unsigned int vertexArrayObject = 0;
@@ -132,7 +138,7 @@ void Scene2::DrawCube(float size) {
 	glGenBuffers(1, &faceElementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, faceElementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
-
+	//std::cout << "RENDER FRAME" << std::endl;
 	//Draw the shape
 	glBindVertexArray(vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, sizeof(faces) / sizeof(faces[0]), GL_UNSIGNED_INT, 0);

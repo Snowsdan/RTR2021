@@ -29,6 +29,10 @@ class SceneBase {
 		void IncreaseSponge();
         void DecreaseSponge();
         void GenerateNewSponge();
+        const char* GetSceneName();
+        int GetSpongeLevel();
+        int GetNumVertices();
+        int GetNumFaces();
         virtual void DrawSponge() = 0;
         virtual void RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix) = 0;
         virtual void DrawCube(float size) = 0;
@@ -36,6 +40,10 @@ class SceneBase {
         
 
         std::list<Cube*>* spongeList = new std::list<Cube*>;
+        
+    protected:
+        const char* sceneName;
         int spongeLevel = 1;
-        //RTRShader* currentShader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
+        int numVertices = 0;
+        int numFaces = 0;
 };

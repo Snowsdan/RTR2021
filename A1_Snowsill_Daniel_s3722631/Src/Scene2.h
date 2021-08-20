@@ -4,6 +4,7 @@ class Scene2 : public SceneBase {
 	public: 
 		Scene2() {
 			sceneTwoShader = new RTRShader("src/Shaders/VertexShader.vert", "src/Shaders/FragmentShader.frag");
+			sceneName = "Scene 2";
 			std::cout << "START SCENE 2" << std::endl;
 		}
 		void InitialiseScene();

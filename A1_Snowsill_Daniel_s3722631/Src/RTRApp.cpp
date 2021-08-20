@@ -9,6 +9,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "RTRApp.h"
 
+#define GLT_IMPLEMENTATION
+#include <gltext/gltext.h>
+
 RTRApp::RTRApp(const char* title, bool fullscreen, int width, int height)
 {
     m_MainWindowTitle = title;
@@ -17,9 +20,9 @@ RTRApp::RTRApp(const char* title, bool fullscreen, int width, int height)
     windowHeight = height;
     screenWidth = 1920;
 	screenHeight = 720;
-    m_SDLWindow = nullptr;
-    m_SDLRenderer = nullptr;
-    m_GLContext = nullptr;
+    sdlWindow = nullptr;
+    sdlRenderer = nullptr;
+    glContext = nullptr;
 }
 
 int RTRApp::Init()
@@ -38,27 +41,27 @@ int RTRApp::Init()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     if (fullScreen == true) {
-        m_SDLWindow = SDL_CreateWindow(
+        sdlWindow = SDL_CreateWindow(
             m_MainWindowTitle.c_str(),
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             0, 0,
             SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
     }
     else {
-        m_SDLWindow = SDL_CreateWindow(
+        sdlWindow = SDL_CreateWindow(
             m_MainWindowTitle.c_str(),
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             windowWidth, windowHeight,
             SDL_WINDOW_OPENGL);
     }
 
-    m_SDLRenderer = SDL_CreateRenderer(m_SDLWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (m_SDLRenderer == nullptr) {
+    sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (sdlRenderer == nullptr) {
         std::cerr << "RTR:ERROR: SDL2 Renderer couldn't be created. Error: " << SDL_GetError() << std::endl;
         return -2;
     }
 
-    m_GLContext = SDL_GL_CreateContext(m_SDLWindow);
+    glContext = SDL_GL_CreateContext(sdlWindow);
 
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         std::cerr << "RTR:ERROR: Failed to initialize the OpenGL context." << std::endl;
@@ -93,11 +96,16 @@ int RTRApp::Init()
 	camera = new RTRCamera();
 	scene2 = new Scene2();
 	SDL_CaptureMouse(SDL_TRUE);
-	//SDL_WarpMouseInWindow(m_SDLWindow, 400, 300);
-
-	gltInit();
+	SDL_WarpMouseInWindow(sdlWindow, 400, 300);
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
 	
-
+	if (!gltInit())
+	{
+		fprintf(stderr, "Failed to initialize glText\n");
+		return EXIT_FAILURE;
+	}
+	
 	return 0;
 }
 
@@ -110,10 +118,14 @@ void RTRApp::Run()
 	scene2->InitialiseScene();
 
     while (!quitApp) {
+		//SDL_GetTicks returns milliseconds
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
+		
+		calcFPS(deltaTime);
 		RenderFrame();
+		
     }
 }
 
@@ -121,13 +133,13 @@ void RTRApp::Done()
 {
 	gltTerminate();
 
-    SDL_GL_DeleteContext(m_GLContext);
-    SDL_DestroyRenderer(m_SDLRenderer);
-    SDL_DestroyWindow(m_SDLWindow);
+    SDL_GL_DeleteContext(glContext);
+    SDL_DestroyRenderer(sdlRenderer);
+    SDL_DestroyWindow(sdlWindow);
     SDL_Quit();
-    m_SDLWindow = nullptr;
-    m_SDLRenderer = nullptr;
-    m_GLContext = nullptr;
+    sdlWindow = nullptr;
+    sdlRenderer = nullptr;
+    glContext = nullptr;
 }
 
 void RTRApp::RenderFrame()
@@ -146,9 +158,9 @@ void RTRApp::RenderFrame()
 
 	currentScene->RenderScene(camera->GetViewMatrix(), projection);
 
+	glm::value_ptr(projection);
 	
-	
-	SDL_GL_SwapWindow(m_SDLWindow);
+	SDL_GL_SwapWindow(sdlWindow);
 }
 
 
@@ -293,9 +305,24 @@ void RTRApp::CheckInput()
 			case SDLK_MINUS:
 				currentScene->DecreaseSponge();
 				break;
+			case SDLK_h:
+				isFullMode = !isFullMode;
+				break;
+			case SDLK_l:
+				isLighting = !isLighting;
+				//TODO: Add a enable/disable lighting methdo to each scene
+				break;
+			case SDLK_z:
+				isDepthTesting = !isDepthTesting;
+				isDepthTesting ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+				break;
+			case SDLK_c:
+				isBackCulling = !isBackCulling;
+				isBackCulling ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
 			}
-
+			
 		case SDL_MOUSEMOTION:
+			
 			camera->RotateCamera();
 			break;
 		}
@@ -305,16 +332,107 @@ void RTRApp::CheckInput()
 // Render On-Screen Display
 void RTRApp::RenderOSD()
 {
-	GLTtext* hello_msg = gltCreateText();
-	gltSetText(hello_msg, "Hello World!");
+	SDL_DisplayMode displayStats = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+	if (SDL_GetDisplayMode(0, 0, &displayStats) != 0) {
+
+		std::cout << "ERROR: " << SDL_GetError() << std::endl;
+	}
+	
+
+	//Create text for FPS
+	char fpsBuffer[100];
+	sprintf_s(fpsBuffer, sizeof(fpsBuffer), "FPS: %i", FPS);
+	GLTtext* fpsText = gltCreateText();
+	gltSetText(fpsText, fpsBuffer);
+
+	//Create text for the scene name
+	GLTtext* sceneNameText = gltCreateText();
+	gltSetText(sceneNameText, currentScene->GetSceneName());
+
+	//Create text for the resolution
+	char displayInfo[100];
+	sprintf_s(displayInfo,sizeof(displayInfo),"Resolution: %i x %i", displayStats.w, displayStats.h);
+	GLTtext* displayText = gltCreateText();
+	gltSetText(displayText, displayInfo);
+
+	//Create text for the refresh rate
+	char refreshInfo[100];
+	sprintf_s(refreshInfo, sizeof(refreshInfo), "Refresh Rate: %i",displayStats.refresh_rate);
+	GLTtext* refreshRateText = gltCreateText();
+	gltSetText(refreshRateText, refreshInfo);
+
+	//Create text for the sponge level
+	char spongeLevel[100];
+	sprintf_s(spongeLevel, sizeof(spongeLevel), "Sponge Level: %i", currentScene->GetSpongeLevel());
+	GLTtext* currentLevelText = gltCreateText();
+	gltSetText(currentLevelText, spongeLevel);
+
+	//Create text for the vertex count
+	char vertexCount[100];
+	sprintf_s(vertexCount, sizeof(vertexCount), "Vertex Count: %i", currentScene->GetNumVertices());
+	GLTtext* vertexText = gltCreateText();
+	gltSetText(vertexText, vertexCount);
+
+	//Create text for the amount of faces
+	char faceCount[100];
+	sprintf_s(faceCount, sizeof(faceCount), "Face Count: %i", currentScene->GetNumFaces());
+	GLTtext* faceCountText = gltCreateText();
+	gltSetText(faceCountText, faceCount);
+
+	//Create text to show if lighting is enabled
+	char isLightingBuffer[100];
+	sprintf_s(isLightingBuffer, sizeof(isLightingBuffer), "Lighting: %s", isLighting ? "enabled" : "disabled");
+	GLTtext* lightingText = gltCreateText();
+	gltSetText(lightingText, isLightingBuffer);
+
+	//Create text to show if depth testing is enabled
+	char isDepthBuffer[100];
+	sprintf_s(isDepthBuffer, sizeof(isDepthBuffer), "Depth Testing: %s", isDepthTesting ? "enabled" : "disabled");
+	GLTtext* depthTestText = gltCreateText();
+	gltSetText(depthTestText, isDepthBuffer);
+
+	//Create text to show if back culling is enabled
+	char isCullingBuffer[200];
+	sprintf_s(isCullingBuffer, sizeof(isCullingBuffer), "Back Face Culling: %s", isBackCulling ? "enabled" : "disabled");
+	GLTtext* backCullingText = gltCreateText();
+	gltSetText(backCullingText, isCullingBuffer);
 
 	gltBeginDraw();
-
 	gltColor(0.0f, 1.0f, 0.0f, 1.0f);
-	gltDrawText2D(hello_msg, 10, 10, 2.0);
+	gltDrawText2DAligned(fpsText, 1, 1, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(sceneNameText, 1, 20, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(displayText, 1, 40, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(refreshRateText, 1, 60, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(currentLevelText, 1, 80, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(vertexText, 1, 100, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(faceCountText, 1, 120, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(lightingText, 1, 140, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(depthTestText, 1, 160, 1.0, GLT_LEFT, GLT_TOP);
+	gltDrawText2DAligned(backCullingText, 1, 180, 1.0, GLT_LEFT, GLT_TOP);
 	gltEndDraw();
 
-	gltDeleteText(hello_msg);
+	gltDeleteText(fpsText);
+	gltDeleteText(sceneNameText);
+	gltDeleteText(displayText);
+	gltDeleteText(refreshRateText);
+	gltDeleteText(currentLevelText);
+	gltDeleteText(vertexText);
+	gltDeleteText(faceCountText);
+	gltDeleteText(lightingText);
+	gltDeleteText(depthTestText);
+	gltDeleteText(backCullingText);
+}
+
+void RTRApp::calcFPS(float timeDelta) {
+	framesCounter++;
+	frameCalcTimer += (int)timeDelta;
+	//std::cout << "NUMBER OF FRAMES: " << framesCounter << std::endl;
+	if (framesCounter >= 100) {
+		FPS = framesCounter / (frameCalcTimer / 1000);
+
+		framesCounter = 0;
+		frameCalcTimer = 0;
+	}
 }
 
 
