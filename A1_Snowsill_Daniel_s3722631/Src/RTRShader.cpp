@@ -112,7 +112,11 @@ void RTRShader::setInt(const char* name, int value) const {
 
 }
 void RTRShader::setFloat(const char* name, float value) const {
-	glUniform1i(glGetUniformLocation(ID, name), value);
+	glUniform1f(glGetUniformLocation(ID, name), value);
+}
+
+void RTRShader::setVec3(const char* name, float x, float y, float z) const {
+	glUniform3f(glGetUniformLocation(ID, name), x, y, z);
 }
 void RTRShader::setMat4(const char* name, const glm::mat4& mat)const {
 	glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);

@@ -13,102 +13,68 @@ void Scene2::DrawSponge() {
 		glm::mat4 modelMat = glm::mat4(1.0f);
 		modelMat = glm::translate(modelMat, currentCube->position);
 		sceneTwoShader->setMat4("model", modelMat);
-		DrawCube(currentCube->size);
+		DrawCube(currentCube);
 
 	}
 }
-void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix) {
+void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm::vec3 cameraPos, glm::vec3 cameraDirection) {
 
-	//std::cout << "VIEW" << std::endl;
 	sceneTwoShader->Use();
 	sceneTwoShader->setMat4("view", cameraMatrix);
-
-
-	//std::cout << "PROJECTION" << std::endl;
-
-
 	sceneTwoShader->setMat4("projection", projectionMatrix);
 	
+	for (Light* light : *lightList) {
+		std::string lightTypeString = "lights[" + std::to_string(lightCounter) + "].type";
+		//std::cout << lightTypeString << std::endl;
+		std::string lightAmbientString = "lights[" + std::to_string(lightCounter) + "].ambient";
+		std::string lightDiffuseString = "lights[" + std::to_string(lightCounter) + "].diffuse";
+		std::string lightSpecString = "lights[" + std::to_string(lightCounter) + "].specular";
+
+		sceneTwoShader->setInt(lightTypeString.c_str(), light->lightType);
+		sceneTwoShader->setVec3(lightAmbientString.c_str(), light->ambient.x, light->ambient.y, light->ambient.z);
+		sceneTwoShader->setVec3(lightDiffuseString.c_str(), light->diffuse.x, light->diffuse.y, light->diffuse.z);
+		sceneTwoShader->setVec3(lightSpecString.c_str(), light->specular.x, light->specular.y, light->specular.z);
+
+		if (light->lightType == point) {
+			std::string lightPosString = "lights[" + std::to_string(lightCounter) + "].position";
+			std::string lightConstString = "lights[" + std::to_string(lightCounter) + "].constant";
+			std::string lightLinString = "lights[" + std::to_string(lightCounter) + "].linear";
+			std::string lightQuadString = "lights[" + std::to_string(lightCounter) + "].quadratic";
+
+			sceneTwoShader->setVec3(lightPosString.c_str(), light->lightPos.x, light->lightPos.y, light->lightPos.z);
+			sceneTwoShader->setFloat(lightConstString.c_str(), light->constant );
+			sceneTwoShader->setFloat(lightLinString.c_str(), light->linear);
+			sceneTwoShader->setFloat(lightQuadString.c_str(), light->quadratic);
+		}
+		else {
+			std::string lightDirString = "lights[" + std::to_string(lightCounter) + "].direction";
+			sceneTwoShader->setVec3(lightDirString.c_str(), light->direction.x, light->direction.y, light->direction.z);
+		}
+		lightCounter++;
+	}
+
+	lightCounter = 0;
+	//sceneTwoShader->setVec3("light.direction", cameraDirection.x, cameraDirection.y, cameraDirection.z);
+	sceneTwoShader->setVec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
+
+	sceneTwoShader->setVec3("material.ambient", 1.0, 0.5, 0.31);
+	sceneTwoShader->setVec3("material.diffuse", 1.0, 0.5, 0.31);
+	sceneTwoShader->setVec3("material.specular", 0.5, 0.5, 0.5);
+	sceneTwoShader->setFloat("material.shininess", 32.0);
+
 	
+
+
 	DrawSponge();
 
-	//glUseProgram(0);
+	for (Light* light : *lightList) {
+		light->DrawLight(cameraMatrix, projectionMatrix);
+	}
 
 }
 
-void Scene2::DrawCube(float size) {
-	float radius = size / 2;
-	//std::cout << "START DRAWING" << std::endl;
-
-	glm::vec3 lightColour(1.0f, 1.0f, 1.0f);
-	glm::vec3 toyColour(1.0f, 0.5f, 0.31f);
-	glm::vec3 result = lightColour * toyColour;
-
-	unsigned int faces[] = {
-		//Front face indices
-		0, 2,1,
-		0, 3, 2,
-		//Left face indices
-		4, 6, 5,
-		4, 7, 6,
-		//Back face indices
-		9, 10, 8,
-		8, 10, 11,
-		//Right face indices
-		12, 14, 13,
-		12, 15, 14,
-		////Top face indices
-		16, 18, 17,
-		16, 19, 18,
-		////Bottom face indices
-		20, 22, 21,
-		20, 23, 22
-	};
-
-	float vertices[] = {
-		//Front Face
-		//     points              colours
-		 -radius, radius, radius,    1.0f, 0.0f, 0.0f, //Top Left - 0
-		  radius, radius, radius,    1.0f,0.0f, 0.0f, //Top Right - 1
-		 radius, -radius, radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 2
-		-radius, -radius, radius,    1.0f, 0.0f, 0.0f, //Bottom Left - 3
-
-		//Left Face
-		//     points              colours
-	    -radius, radius, -radius,    0.0f, 1.0f, 0.0f,  //Top Left - 4
-		 -radius, radius, radius,    0.0f, 1.0f, 0.0f, //Top Right - 5
-	    -radius, -radius, radius,    0.0f, 1.0f, 0.0f,//Bottom Right - 6
-	   -radius, -radius, -radius,    0.0f, 1.0f, 0.0f, //Bottom Left - 7
-
-		//Back Face
-		//     points              colours
-		-radius, radius, -radius,    1.0f, 0.0f, 0.0f,  //Top Left - 8
-		 radius, radius, -radius,    1.0f, 0.0f, 0.0f, //Top Right - 9
-		radius, -radius, -radius,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
-	   -radius, -radius, -radius,    1.0f, 0.0f, 0.0f, //Bottom Left - 11
-
-		//Right Face
-		//     points              colours
-		  radius, radius, radius,    0.0f, 1.0f, 0.0f,  //Top Left - 12
-	     radius, radius, -radius,    0.0f, 1.0f, 0.0f, //Top Right - 13
-	     radius, -radius,-radius,    0.0f, 1.0f, 0.0f,//Bottom Right - 14
-	     radius, -radius, radius,    0.0f, 1.0f, 0.0f, //Bottom Left - 15
-
-		//Top Face
-		//     points              colours
-		-radius, radius, -radius,    0.0f, 0.0f, 1.0f,  //Top Left - 16
-		 radius, radius, -radius,    0.0f, 0.0f, 1.0f, //Top Right - 17
-		  radius, radius, radius,    0.0f, 0.0f, 1.0f,//Bottom Right - 18
-		 -radius, radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 19
-
-		//Bottom Face
-		//     points              colours
-		radius, -radius, -radius,    0.0f, 0.0f, 1.0f,  //Top Left - 20
-	   -radius, -radius, -radius,    0.0f, 0.0f, 1.0f, //Top Right - 21
-		-radius, -radius, radius,    0.0f, 0.0f, 1.0f,//Bottom Right - 22
-		 radius, -radius, radius,    0.0f, 0.0f, 1.0f, //Bottom Left - 23
-	};
-
+void Scene2::DrawCube(Cube* cube) {
+	
 	
 	//Create buffer for the vertexPoints
 	unsigned int vertexBuffer = 0;
@@ -119,29 +85,34 @@ void Scene2::DrawCube(float size) {
 	//Send vertex point data to buffer
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube->vertices), cube->vertices, GL_STATIC_DRAW);
 
 	//Generate vertex array object
 	glGenVertexArrays(1, &vertexArrayObject);
 	glBindVertexArray(vertexArrayObject);
 
 	//Specify attribute locations
-	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	//Specify what data is for colour
+	
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	//Specify what data is for normals
 	
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	//Declare Element Buffer Object that allows the GPU to read what vertices to use when drawing
 	glGenBuffers(1, &faceElementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, faceElementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(faces), faces, GL_STATIC_DRAW);
-	//std::cout << "RENDER FRAME" << std::endl;
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube->faces), cube->faces, GL_STATIC_DRAW);
+
 	//Draw the shape
 	glBindVertexArray(vertexArrayObject);
-	glDrawElements(GL_TRIANGLES, sizeof(faces) / sizeof(faces[0]), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, sizeof(cube->faces) / sizeof(cube->faces[0]), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
 	//Clean up

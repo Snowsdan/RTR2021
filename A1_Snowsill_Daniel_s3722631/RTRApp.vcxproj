@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\glad\glad.c" />
+    <ClCompile Include="Src\Light.cpp" />
     <ClCompile Include="Src\RTRApp.cpp" />
     <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\RTRCamera.cpp" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\gltext\gltext.h" />
+    <ClInclude Include="Src\Light.h" />
     <ClInclude Include="Src\RTRApp.h" />
     <ClInclude Include="Src\RTRCamera.h" />
     <ClInclude Include="Src\RTRShader.h" />

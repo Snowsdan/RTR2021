@@ -16,10 +16,8 @@ std::list<Cube*>* SceneBase::GenCubes(Cube* currentCube) {
 						currentCube->position.y + y * newSize,
 						currentCube->position.z + z * newSize);
 					modelMat = glm::translate(modelMat, posVector);
-
 					Cube* newCube = new Cube(newSize, posVector);
-					//std::cout << newCube->size << std::endl;
-
+					
 					newCubes->push_front(newCube);;
 				}
 			}
@@ -33,11 +31,14 @@ void SceneBase::IncreaseSponge() {
 	std::list<Cube*>* newCubes = new std::list<Cube*>;
 
 	for (Cube* currentCube : *spongeList) {
-		//std::cout << "NEW LEVEL" << std::endl;
-
+		
+		numFaces += NUM_CUBE_FACES;
+		std::cout << "NUM FACES: " << numFaces << std::endl;
+		numVertices += NUM_CUBE_VERTICES;
 		newCubes->splice(newCubes->end(), *GenCubes(currentCube));
 	}
 	spongeLevel++;
+	
 	std::cout << "SPonge LEVEL: " << spongeLevel<< std::endl;
 
 	//std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
@@ -46,9 +47,9 @@ void SceneBase::IncreaseSponge() {
 
 void SceneBase::DecreaseSponge() {
 	if (spongeLevel > 1) {
-		//std::cout << "DECREASE" << std::endl;
 		spongeList->clear();
-		//std::cout << "Sponge List SIze after deletion: " << spongeList->size() << std::endl;
+		numFaces = 0;
+		numVertices = 0;
 		GenerateNewSponge();
 
 		int newSpongeLevel = spongeLevel - 1;
