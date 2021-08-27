@@ -195,12 +195,16 @@ void Scene4::CreateNewSponges() {
 
 void Scene4::DrawSponge(SpongeAtt* attributes) {
 
-
 	//Create buffer for the vertexPoints
 	unsigned int vertexBuffer = 0;
 	unsigned int vertexArrayObject = 0;
-	unsigned int colourBuffer = 0;
 	unsigned int faceElementBuffer = 0;
+	unsigned int modelMatricesBuffer = 0;
+
+	//Send matrix data to buffer
+	glGenBuffers(1, &modelMatricesBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, modelMatricesBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * modelMats->size(), &modelMats[0], GL_STATIC_DRAW);
 
 	//Send vertex point data to buffer
 	glGenBuffers(1, &vertexBuffer);
@@ -211,9 +215,7 @@ void Scene4::DrawSponge(SpongeAtt* attributes) {
 	glGenVertexArrays(1, &vertexArrayObject);
 	glBindVertexArray(vertexArrayObject);
 
-	//Specify attribute locations
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
 	//Specify what data is for vertex positions
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -221,6 +223,12 @@ void Scene4::DrawSponge(SpongeAtt* attributes) {
 	//Specify what data is for normals
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	//Specify data for model matrices
+	glBindBuffer(GL_ARRAY_BUFFER, modelMatricesBuffer);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	glEnableVertexAttribArray(2);
+	glVertexAttribDivisor(2, 1);
 
 	//Declare Element Buffer Object that allows the GPU to read what vertices to use when drawing
 	glGenBuffers(1, &faceElementBuffer);
