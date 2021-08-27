@@ -6,7 +6,6 @@ layout (location = 2) in mat4 instanceMatrix;
 out vec3 Normal;
 out vec3 fragPos;
 
-uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
@@ -16,8 +15,8 @@ void main()
 {
 	//vec3 transform = positionTranform[gl_InstanceID];
 
-	gl_Position = projection * view * model *  vec4(vertexPoints, 1.0);
-	fragPos = vec3(model * vec4(vertexPoints, 1.0));
+	gl_Position = projection * view * instanceMatrix *  vec4(vertexPoints, 1.0);
+	fragPos = vec3(instanceMatrix * vec4(vertexPoints, 1.0));
 	//Normal = mat3(transpose(inverse(model))) * inNormal;
 	Normal = inNormal;
 

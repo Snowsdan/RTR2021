@@ -46,7 +46,7 @@ class SceneBase {
 		virtual std::list<Cube*>* GenCubes(Cube* currentCube, SpongeAtt* attributes);
 		virtual void IncreaseSponge();
         virtual void DecreaseSponge();
-        void GenerateNewSponge();
+        void GenerateNewSponge(float startingSize);
 		void IncreaseLights();
 		void DecreaseLights();
 

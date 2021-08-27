@@ -1,15 +1,11 @@
 #pragma once
 #include "SceneBase.h"
 #include <vector>
-struct Scene4Sponge {
+struct MatrixInfo {
 
 	float rotation = 0.0;
 	glm::vec3 rotationAxis;
-
-	//used for the model matrix for each sponge
-	glm::vec3 origin;
-	SpongeAtt* sponge = new SpongeAtt();
-
+	glm::mat4 model;
 
 };
 
@@ -22,20 +18,24 @@ public:
 	void InitialiseScene();
 	void DeactivateScene();
 	void DrawSponges();
-	void DrawSponge(SpongeAtt* attributes) override;
-	void RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm::vec3 cameraPos, glm::vec3 cameraDirection);
 	void IncreaseSponge() override;
 	void DecreaseSponge() override;
+	void RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm::vec3 cameraPos, glm::vec3 cameraDirection);
 
 	RTRShader* sceneFourShader;
 
 	//Make a new pointer to a vector filled with sponges
-	std::vector<Scene4Sponge*>* sponges = new std::vector<Scene4Sponge*>;
-	std::vector<glm::mat4>* modelMats = new std::vector<glm::mat4>;
+	std::vector<MatrixInfo>* modelMats = new std::vector<MatrixInfo>;
+	std::vector<glm::mat4>* modelMatrices = new std::vector<glm::mat4>;
+
+	glm::mat4 matrices[9];
+	glm::vec3 axisRotations[9];
+
 
 private:
-	void CreateNewSponges();
-	//std::list<Cube*>* GenCubes(Cube* currentCube, float initialAngle, glm::vec3 rotationAxis);
+	const int numSponges = 9;
+	void UpdateModelMats();
+	void CreateNewMatrices();
 	int lightCounter = 0;
 
 

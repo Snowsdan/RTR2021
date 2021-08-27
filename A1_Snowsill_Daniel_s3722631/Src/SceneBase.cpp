@@ -106,22 +106,17 @@ std::list<Cube*>* SceneBase::GenCubes(Cube* currentCube, SpongeAtt* attributes) 
 	return newCubes;
 }
 
+//Increase the level of subdivision in the sponge
 void SceneBase::IncreaseSponge() {
 	
 	std::list<Cube*>* newCubes = new std::list<Cube*>;
 	spongeAttributes->vertices.clear();
 	spongeAttributes->faces.clear();
 	for (Cube* currentCube : *spongeAttributes->cubeList) {
-		
-		//std::cout << "NUM FACES: " << numFaces << std::endl;
-
 		newCubes->splice(newCubes->end(), *GenCubes(currentCube, spongeAttributes));
 	}
 	spongeLevel++;
 	
-	//std::cout << "SPonge LEVEL: " << spongeLevel<< std::endl;
-
-	//std::cout << "NEW CUBES SIZE: " << newCubes->size() << std::endl;
 	spongeAttributes->cubeList = newCubes;
 }
 
@@ -130,7 +125,7 @@ void SceneBase::DecreaseSponge() {
 		spongeAttributes->cubeList->clear();
 		numFaces = 0;
 		numVertices = 0;
-		GenerateNewSponge();
+		GenerateNewSponge(1.0f);
 
 		int newSpongeLevel = spongeLevel - 1;
 		spongeLevel = 1;
@@ -147,8 +142,8 @@ void SceneBase::DecreaseSponge() {
 
 }
 
-void SceneBase::GenerateNewSponge() {
-	Cube* baseCube = new Cube(1.0, glm::vec3(0, 0, 0));
+void SceneBase::GenerateNewSponge(float startingSize) {
+	Cube* baseCube = new Cube(startingSize, glm::vec3(0, 0, 0));
 	spongeAttributes->cubeList->splice(spongeAttributes->cubeList->end(), *GenCubes(baseCube, spongeAttributes));
 	
 }
@@ -159,9 +154,9 @@ void SceneBase::IncreaseLights() {
 		if (lightList->empty()) {
 			lightList->push_back(new Light(
 				directional,
-				glm::vec3(-0.1f, 1.5f, 1.5f),
 				glm::vec3(0.0),
-				glm::vec3(1.0, 1.0, 1.0),
+				glm::vec3(-0.1f, 1.5f, 1.5f),
+				glm::vec3(0.2f, 0.2f, 0.2f),
 				glm::vec3(1.0, 1.0, 1.0),
 				glm::vec3(0.3, 0.3, 0.3),
 				0, 0, 0));

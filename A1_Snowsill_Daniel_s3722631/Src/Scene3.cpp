@@ -22,7 +22,7 @@ void Scene3::DeactivateScene() {
 void Scene3::DrawSponges() {
 
 	for(Scene3Sponge* currentSponge : *sponges){
-		currentSponge->rotation = currentSponge->rotation + 1.0f;
+		currentSponge->rotation += + 1.0f;
 		float rotation = currentSponge->rotation;
 		
 		glm::mat4 model = glm::mat4(1.0);
@@ -49,7 +49,6 @@ void Scene3::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm
 
 	for (Light* light : *lightList) {
 		std::string lightTypeString = "lights[" + std::to_string(lightCounter) + "].type";
-		//std::cout << lightTypeString << std::endl;
 		std::string lightAmbientString = "lights[" + std::to_string(lightCounter) + "].ambient";
 		std::string lightDiffuseString = "lights[" + std::to_string(lightCounter) + "].diffuse";
 		std::string lightSpecString = "lights[" + std::to_string(lightCounter) + "].specular";
@@ -73,7 +72,6 @@ void Scene3::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm
 		else {
 			std::string lightDirString = "lights[" + std::to_string(lightCounter) + "].direction";
 			sceneThreeShader->setVec3(lightDirString.c_str(), cameraDirection.x, cameraDirection.y, cameraDirection.z);
-			//std::cout << "CAMERA DIRECTION: " << cameraDirection.x << " " << cameraDirection.y << " " << cameraDirection.z << std::endl;
 
 		}
 		lightCounter++;
@@ -104,10 +102,7 @@ void Scene3::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm
 
 
 	DrawSponges();
-	/*Cube* cb = new Cube(1.0 / 3.0, glm::vec3(0, 0, 0));
-	sceneThreeShader->setMat4("model", cb->modelMat);
-	DrawCube(cb);*/
-	//std::cout << "FIRST CUBE: " << sponges->front()->front()->position.x << std::endl;
+
 
 	//Debug method for drawing where the lights are
 	/*for (Light* light : *lightList) {

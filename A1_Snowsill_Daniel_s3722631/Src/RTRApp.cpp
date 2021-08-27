@@ -240,6 +240,7 @@ void RTRApp::CheckInput()
 				if (currentScene != scene3) {
 					currentScene->DeactivateScene();
 					currentScene = scene3;
+					//Reset Camera
 					camera->cameraPos = glm::vec3(0.0, 0.0, 3.0);
 					glm::vec3 newDirection;
 					newDirection.x = cos(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
@@ -255,6 +256,8 @@ void RTRApp::CheckInput()
 			case SDLK_4:
 				if (currentScene != scene4) {
 					currentScene->DeactivateScene();
+
+					//Reset Camera
 					currentScene = scene4;
 					camera->cameraPos = glm::vec3(0.0, 0.0, 3.0);
 					glm::vec3 newDirection;

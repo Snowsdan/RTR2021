@@ -3,7 +3,7 @@
 
 
 void Scene2::InitialiseScene() {
-	GenerateNewSponge();
+	GenerateNewSponge(1.0);
 	IncreaseLights();
 
 }
