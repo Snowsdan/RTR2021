@@ -17,8 +17,10 @@ public:
 	glm::mat4 GetViewMatrix();
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 	glm::vec3 direction;
-protected:
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	void SetLookAt();
+protected:
+	
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	
@@ -32,8 +34,5 @@ protected:
 	float cameraSpeed = 0.01f;
 	float lastX = 0, lastY = 0;
 	int xPos, yPos;
-
-private:
-	void SetLookAt();
 };
 

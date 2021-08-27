@@ -8,7 +8,10 @@
 #pragma once
 #include "RTRShader.h"
 #include "RTRCamera.h"
+#include "Scene1.h"
 #include "Scene2.h"
+#include "Scene3.h"
+#include "Scene4.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,15 +41,11 @@ public:
         return true;
     }
 
-    void DrawCube(float size);
+
     void CheckInput();
     void RenderFrame();
     void RenderOSD();
     void calcFPS(float timeDelta);
-
-    std::list<Cube*>* GenCubes(Cube* currentCube);
-    void IncreaseSponge();
-    void DrawSponge();
 
 
 protected:
@@ -68,7 +67,10 @@ protected:
 
 
     SceneBase* currentScene;
+    SceneBase* scene1;
     SceneBase* scene2;
+    SceneBase* scene3;
+    SceneBase* scene4;
 
     bool isLighting = true;
     bool isDepthTesting = true;

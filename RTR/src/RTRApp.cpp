@@ -1,5 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "RTRApp.h"
+#include <vector>
 //#include "RTRShader.h"
 
 
@@ -152,11 +153,11 @@ void RTRApp::CheckInput(){
 }
 
 void RTRApp::DrawCube() {
-
+	std::vector<float> points;
+	std::vector<unsigned int> face;
 	//Variables for error checking
 	int success;				//Indicates success or failure
 	char infoLog[512];			//Storage for the error message
-
 	unsigned int faces[] = {
 		//Front face indices
 		0, 2,1,  	
@@ -177,11 +178,11 @@ void RTRApp::DrawCube() {
 		20, 22, 21,
 		20, 23, 22
 	};
-
-	float vertices[] = {
+	int size = 144;
+	float vertices[] = { 
 		//Front Face
 		//     points              colours
-		 -0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 0.0f, //Top Left - 0
+		-0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 0.0f, //Top Left - 0
 		  0.5f, 0.5f, 0.5f,    0.0f,1.0f, 0.0f, //Top Right - 1
 		 0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 2
 		-0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 3
@@ -196,8 +197,8 @@ void RTRApp::DrawCube() {
 		//Back Face
 		//     points              colours
 		-0.5f, 0.5f, -0.5f,    1.0f, 1.0f, 0.0f,  //Top Left - 8
-	     0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 9
-	    0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
+		 0.5f, 0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 9
+		0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 10
 	   -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 11
 
 		//Right Face
@@ -220,9 +221,17 @@ void RTRApp::DrawCube() {
 	   -0.5f, -0.5f, -0.5f,    0.0f,1.0f, 0.0f, //Top Right - 21
 		-0.5f, -0.5f, 0.5f,    1.0f, 0.0f, 0.0f,//Bottom Right - 22
 		 0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, //Bottom Left - 23
-	};
+	 };
+	
+	for (int i = 0; i < size; i++) {
+		points.push_back(vertices[i]);
+	}
 
+	for (int i = 0; i < (sizeof(faces) / sizeof(faces[0])); i++) {
+		face.push_back(faces[i]);
+	}
 
+	float* p = vertices;
 	//Create buffer for the vertexPoints
 	unsigned int vertexBuffer = 0;
 	unsigned int vertexArrayObject = 0;
@@ -232,7 +241,7 @@ void RTRApp::DrawCube() {
 	//Send vertex point data to buffer
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), &points[0], GL_STATIC_DRAW);
 
 	//Generate vertex array object
 	glGenVertexArrays(1, &vertexArrayObject);

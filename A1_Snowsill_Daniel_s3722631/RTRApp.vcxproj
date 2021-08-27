@@ -25,7 +25,10 @@
     <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\RTRCamera.cpp" />
     <ClCompile Include="Src\RTRShader.cpp" />
+    <ClCompile Include="Src\Scene1.cpp" />
     <ClCompile Include="Src\Scene2.cpp" />
+    <ClCompile Include="Src\Scene3.cpp" />
+    <ClCompile Include="Src\Scene4.cpp" />
     <ClCompile Include="Src\SceneBase.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,7 +38,15 @@
     <ClInclude Include="Src\RTRCamera.h" />
     <ClInclude Include="Src\RTRShader.h" />
     <ClInclude Include="Src\Scene2.h" />
+    <ClInclude Include="Src\Scene3.h" />
+    <ClInclude Include="Src\Scene4.h" />
     <ClInclude Include="Src\SceneBase.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\Shaders\Scene3FragmentShader.frag" />
+    <None Include="Src\Shaders\Scene3VertexShader.vert" />
+    <None Include="Src\Shaders\Scene4FragmentShader.frag" />
+    <None Include="Src\Shaders\Scene4VertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

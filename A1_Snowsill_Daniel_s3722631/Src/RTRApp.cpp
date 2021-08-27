@@ -94,7 +94,12 @@ int RTRApp::Init()
 
 	
 	camera = new RTRCamera();
+	scene1 = new Scene1();
 	scene2 = new Scene2();
+	scene3 = new Scene3();
+	scene4 = new Scene4();
+
+
 	SDL_CaptureMouse(SDL_TRUE);
 	/*SDL_WarpMouseInWindow(sdlWindow, 400, 300);*/
 	glEnable(GL_DEBUG_OUTPUT);
@@ -115,7 +120,7 @@ void RTRApp::Run()
 {
 
 	currentScene = scene2;
-	scene2->InitialiseScene();
+	currentScene->InitialiseScene();
 
     while (!quitApp) {
 		//SDL_GetTicks returns milliseconds
@@ -199,8 +204,8 @@ void RTRApp::CheckInput()
 				isFullMode = !isFullMode;
 				break;
 			case SDLK_l:
-				isLighting = !isLighting;
-				//TODO: Add a enable/disable lighting methdo to each scene
+				currentScene->isLighting = !currentScene->isLighting;
+				//TODO: Add a enable/disable lighting method to each scene
 				break;
 			case SDLK_z:
 				isDepthTesting = !isDepthTesting;
@@ -209,8 +214,61 @@ void RTRApp::CheckInput()
 			case SDLK_c:
 				isBackCulling = !isBackCulling;
 				isBackCulling ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-			}
-			
+				break;
+			case SDLK_PERIOD:
+				currentScene->IncreaseLights();
+				break;
+			case SDLK_COMMA:
+				currentScene->DecreaseLights();
+				break;
+			case SDLK_1:
+				if (currentScene != scene1) {
+					currentScene->DeactivateScene();
+					currentScene = scene1;
+					currentScene->InitialiseScene();
+				}
+				
+				break;
+			case SDLK_2:
+				if (currentScene != scene2) {
+					currentScene->DeactivateScene();
+					currentScene = scene2;
+					currentScene->InitialiseScene();
+				}
+				break;
+			case SDLK_3:
+				if (currentScene != scene3) {
+					currentScene->DeactivateScene();
+					currentScene = scene3;
+					camera->cameraPos = glm::vec3(0.0, 0.0, 3.0);
+					glm::vec3 newDirection;
+					newDirection.x = cos(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
+					newDirection.y = sin(glm::radians(0.0f));
+					newDirection.z = sin(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
+					camera->cameraFront = glm::normalize(camera->direction);
+					camera->direction = newDirection;
+
+					camera->SetLookAt();
+					currentScene->InitialiseScene();
+				}
+				break;
+			case SDLK_4:
+				if (currentScene != scene4) {
+					currentScene->DeactivateScene();
+					currentScene = scene4;
+					camera->cameraPos = glm::vec3(0.0, 0.0, 3.0);
+					glm::vec3 newDirection;
+					newDirection.x = cos(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
+					newDirection.y = sin(glm::radians(0.0f));
+					newDirection.z = sin(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
+					camera->cameraFront = glm::normalize(camera->direction);
+					camera->direction = newDirection;
+
+					camera->SetLookAt();
+					currentScene->InitialiseScene();
+				}
+				break;
+			} 
 		case SDL_MOUSEMOTION:
 			
 			camera->RotateCamera();
@@ -271,7 +329,7 @@ void RTRApp::RenderOSD()
 
 	//Create text to show if lighting is enabled
 	char isLightingBuffer[100];
-	sprintf_s(isLightingBuffer, sizeof(isLightingBuffer), "Lighting: %s", isLighting ? "enabled" : "disabled");
+	sprintf_s(isLightingBuffer, sizeof(isLightingBuffer), "Lighting: %s", currentScene->isLighting ? "enabled" : "disabled");
 	GLTtext* lightingText = gltCreateText();
 	gltSetText(lightingText, isLightingBuffer);
 

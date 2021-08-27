@@ -39,6 +39,15 @@
     <ClCompile Include="Src\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Scene1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scene3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Scene4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\RTRApp.h">
@@ -62,5 +71,17 @@
     <ClInclude Include="Src\Light.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Scene3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Scene4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\Shaders\Scene3FragmentShader.frag" />
+    <None Include="Src\Shaders\Scene3VertexShader.vert" />
+    <None Include="Src\Shaders\Scene4FragmentShader.frag" />
+    <None Include="Src\Shaders\Scene4VertexShader.vert" />
   </ItemGroup>
 </Project>

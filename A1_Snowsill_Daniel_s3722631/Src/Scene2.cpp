@@ -4,25 +4,28 @@
 
 void Scene2::InitialiseScene() {
 	GenerateNewSponge();
+	IncreaseLights();
 
 }
 
-void Scene2::DrawSponge() {
-	for (Cube* currentCube : *spongeList) {
-	
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		modelMat = glm::translate(modelMat, currentCube->position);
-		sceneTwoShader->setMat4("model", modelMat);
-		DrawCube(currentCube);
-
-	}
+void Scene2::DeactivateScene() {
+	spongeAttributes->cubeList->clear();
+	numActiveLights = 0;
+	spongeLevel = 1;
+	numVertices = 0;
+	numFaces = 0;
+	glUseProgram(0);
+	glBindVertexArray(0);
 }
+
 void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm::vec3 cameraPos, glm::vec3 cameraDirection) {
-
 	sceneTwoShader->Use();
 	sceneTwoShader->setMat4("view", cameraMatrix);
 	sceneTwoShader->setMat4("projection", projectionMatrix);
-	
+	sceneTwoShader->setInt("numActiveLights", numActiveLights);
+	sceneTwoShader->setBool("isLighting", isLighting);
+	sceneTwoShader->setMat4("model", glm::mat4(1.0));
+
 	for (Light* light : *lightList) {
 		std::string lightTypeString = "lights[" + std::to_string(lightCounter) + "].type";
 		//std::cout << lightTypeString << std::endl;
@@ -48,79 +51,42 @@ void Scene2::RenderScene(glm::mat4 cameraMatrix, glm::mat4 projectionMatrix, glm
 		}
 		else {
 			std::string lightDirString = "lights[" + std::to_string(lightCounter) + "].direction";
-			sceneTwoShader->setVec3(lightDirString.c_str(), light->direction.x, light->direction.y, light->direction.z);
+			sceneTwoShader->setVec3(lightDirString.c_str(), cameraDirection.x, cameraDirection.y, cameraDirection.z);
+			//std::cout << "CAMERA DIRECTION: " << cameraDirection.x << " " << cameraDirection.y << " " << cameraDirection.z << std::endl;
+
 		}
 		lightCounter++;
 	}
-
 	lightCounter = 0;
-	//sceneTwoShader->setVec3("light.direction", cameraDirection.x, cameraDirection.y, cameraDirection.z);
+
 	sceneTwoShader->setVec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
-	sceneTwoShader->setVec3("material.ambient", 1.0, 0.5, 0.31);
-	sceneTwoShader->setVec3("material.diffuse", 1.0, 0.5, 0.31);
-	sceneTwoShader->setVec3("material.specular", 0.5, 0.5, 0.5);
-	sceneTwoShader->setFloat("material.shininess", 32.0);
+	//Set x axis faces to red
+	sceneTwoShader->setVec3("xMaterial.ambient", 0.3, 0.0, 0.0);
+	sceneTwoShader->setVec3("xMaterial.diffuse", 0.3, 0.0, 0.0);
+	sceneTwoShader->setVec3("xMaterial.specular", 1.0, 1.0, 1.0);
+	sceneTwoShader->setFloat("xMaterial.shininess", 128.0);
+
+	//Set y axis faces to green
+	sceneTwoShader->setVec3("yMaterial.ambient", 0.0, 0.3, 0.0);
+	sceneTwoShader->setVec3("yMaterial.diffuse", 0.0, 0.3, 0.0);
+	sceneTwoShader->setVec3("yMaterial.specular", 1.0, 1.0,1.0);
+	sceneTwoShader->setFloat("yMaterial.shininess", 128.0);
+
+	//set z axis faces to blue
+	sceneTwoShader->setVec3("zMaterial.ambient", 0.0, 0.0, 0.3);
+	sceneTwoShader->setVec3("zMaterial.diffuse", 0.0, 0.0, 0.3);
+	sceneTwoShader->setVec3("zMaterial.specular", 1.0, 1.0, 1.0);
+	sceneTwoShader->setFloat("zMaterial.shininess", 128.0);
 
 	
 
 
-	DrawSponge();
+	DrawSponge(spongeAttributes);
 
-	for (Light* light : *lightList) {
+	//Debug method for drawing where the lights are
+	/*for (Light* light : *lightList) {
 		light->DrawLight(cameraMatrix, projectionMatrix);
-	}
-
-}
-
-void Scene2::DrawCube(Cube* cube) {
-	
-	
-	//Create buffer for the vertexPoints
-	unsigned int vertexBuffer = 0;
-	unsigned int vertexArrayObject = 0;
-	unsigned int colourBuffer = 0;
-	unsigned int faceElementBuffer = 0;
-
-	//Send vertex point data to buffer
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube->vertices), cube->vertices, GL_STATIC_DRAW);
-
-	//Generate vertex array object
-	glGenVertexArrays(1, &vertexArrayObject);
-	glBindVertexArray(vertexArrayObject);
-
-	//Specify attribute locations
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	//Specify what data is for colour
-	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	//Specify what data is for normals
-	
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	//Declare Element Buffer Object that allows the GPU to read what vertices to use when drawing
-	glGenBuffers(1, &faceElementBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, faceElementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube->faces), cube->faces, GL_STATIC_DRAW);
-
-	//Draw the shape
-	glBindVertexArray(vertexArrayObject);
-	glDrawElements(GL_TRIANGLES, sizeof(cube->faces) / sizeof(cube->faces[0]), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	//Clean up
-	glDeleteVertexArrays(1, &vertexArrayObject);
-	glDeleteBuffers(1, &vertexBuffer);
-	glDeleteBuffers(1, &faceElementBuffer);
-	vertexArrayObject = 0;
-	vertexBuffer = 0;
-	faceElementBuffer = 0;
+	}*/
 
 }
