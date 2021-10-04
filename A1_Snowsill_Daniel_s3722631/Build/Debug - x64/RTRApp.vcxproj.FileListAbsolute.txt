@@ -1,4 +1,0 @@
-D:\Github\RTR2021\A1_Snowsill_Daniel_s3722631\Build\Debug - x64\A1.exe
-D:\Github\RTR2021\A1_Snowsill_Daniel_s3722631\Build\Debug - x64\A1.pdb
-C:\Users\User\Documents\GitHub\RTR2021\A1_Snowsill_Daniel_s3722631\Build\Debug - x64\A1.exe
-C:\Users\User\Documents\GitHub\RTR2021\A1_Snowsill_Daniel_s3722631\Build\Debug - x64\A1.pdb
