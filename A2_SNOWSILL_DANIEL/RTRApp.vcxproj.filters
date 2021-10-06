@@ -61,12 +61,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Src\RTRDefault.vert">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Src\RTRDefault.geom">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="Src\RTRDefault.frag">
       <Filter>Shader Files</Filter>
     </None>
@@ -74,6 +68,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Src\RTRPlasma.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\RTRDefault.geom">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\RTRDefault.vert">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

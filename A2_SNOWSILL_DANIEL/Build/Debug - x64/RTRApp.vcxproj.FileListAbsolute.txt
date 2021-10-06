@@ -1,2 +1,4 @@
 D:\Github\RTR2021\A2_SNOWSILL_DANIEL\Build\Debug - x64\A2.exe
 D:\Github\RTR2021\A2_SNOWSILL_DANIEL\Build\Debug - x64\A2.pdb
+C:\Users\User\Documents\GitHub\RTR2021\A2_SNOWSILL_DANIEL\Build\Debug - x64\A2.exe
+C:\Users\User\Documents\GitHub\RTR2021\A2_SNOWSILL_DANIEL\Build\Debug - x64\A2.pdb
