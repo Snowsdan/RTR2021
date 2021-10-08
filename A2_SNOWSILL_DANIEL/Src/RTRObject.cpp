@@ -18,9 +18,12 @@
 //-----------------------------------------------------------------------------
 void RTRObject::Init()
 {
+    float sizeofFace = faces.size() * sizeof(float);
+    float mult = m_NumFaces * sizeof(float);
     glGenBuffers(1, &m_VertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, m_NumVertices * sizeof(RTRPoint_t), m_VertexPoints, GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, m_NumVertices * sizeof(RTRPoint_t), m_VertexPoints, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &m_VertexArray);
     glBindVertexArray(m_VertexArray);
@@ -32,14 +35,15 @@ void RTRObject::Init()
 
     glGenBuffers(1, &m_FaceElementBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FaceElementBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_NumFaces * sizeof(RTRFace_t), m_Faces, GL_STATIC_DRAW);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_NumFaces * sizeof(RTRFace_t), m_Faces, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(unsigned int), &faces[0], GL_STATIC_DRAW);
 }
 
 void RTRObject::Render(RTRShader *shader)
 {
     shader->SetMaterial("u_ObjectMaterial", m_Material);
     glBindVertexArray(m_VertexArray);
-    glDrawElements(GL_TRIANGLES, m_NumFaces * 3, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_NumFaces, GL_UNSIGNED_INT, 0);
     //glDrawArrays(GL_TRIANGLES, 0, m_NumVertices);
     glBindVertexArray(0);
 }
@@ -56,25 +60,74 @@ void RTRObject::End()
 //-----------------------------------------------------------------------------
 void RTRCube::Init()
 {
-    m_NumVertices = 8;
-    m_NumFaces = 12;
-    m_VertexPoints = new RTRPoint_t[8]{
-        { -1, -1,  1 },
-        {  1, -1,  1 },
-        {  1,  1,  1 },
-        { -1,  1,  1 },
-        {  1, -1, -1 },
-        { -1, -1, -1 },
-        { -1,  1, -1 },
-        {  1,  1, -1 }
+   
+    vertices = {
+        //Front Face
+       //     points        
+       -0.5f, 0.5f, 0.5f,
+         0.5f, 0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+       -0.5f, -0.5f, 0.5f,
+
+       //Left Face
+       //     points        
+        -0.5f, 0.5f, -0.5f,
+       -0.5f, 0.5f, 0.5f,
+      -0.5f, -0.5f, 0.5f,
+       -0.5f, -0.5f, -0.5f,
+
+       //Back Face
+       //     points        
+       -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+       0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+
+      //Right Face
+      //     points        
+      0.5f, 0.5f, 0.5f,
+     0.5f, 0.5f, -0.5f,
+     0.5f, -0.5f,-0.5f,
+     0.5f, -0.5f, 0.5f,
+
+     //Top Face
+     //     points        
+     -0.5f, 0.5f, -0.5f,
+      0.5f, 0.5f, -0.5f,
+       0.5f, 0.5f, 0.5f,
+      -0.5f, 0.5f, 0.5f,
+
+      //Bottom Face
+      //     points        
+      0.5f, -0.5f, -0.5f,
+     -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f, 0.5f,
+       0.5f, -0.5f, 0.5f,
     };
-    m_Faces = new RTRFace_t[12]{
-        { 1, 4, 7 }, { 1, 7, 2 },   // +x
-        { 5, 0, 3 }, { 5, 3, 6 },   // -x
-        { 3, 2, 7 }, { 3, 7, 6 },   // +y
-        { 5, 4, 1 }, { 5, 1, 0 },   // -y
-        { 0, 1, 2 }, { 0, 2, 3 },   // +z
-        { 4, 5, 6 }, { 4, 6, 7 }    // -z
+    
+    faces = {
+        //Front face indices
+       0, 2,1,
+       0, 3, 2,
+       //Left face indices
+       4, 6, 5,
+       4, 7, 6,
+       //Back face indices
+       8, 10, 9,
+       8, 11, 10,
+       //Right face indices
+       12, 14, 13,
+       12, 15, 14,
+       ////Top face indices
+       16, 18, 17,
+       16, 19, 18,
+       ////Bottom face indices
+       20, 22, 21,
+       20, 23, 22
     };
+
+    m_NumFaces = faces.size();
+    m_NumVertices = vertices.size();
+
     RTRObject::Init();
 }

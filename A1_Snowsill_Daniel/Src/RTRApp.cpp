@@ -100,7 +100,7 @@ int RTRApp::Init()
 	scene4 = new Scene4();
 	scene6 = new Scene6();
 
-
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_CaptureMouse(SDL_TRUE);
 
 	//Enable or disable vsync

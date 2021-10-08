@@ -6,7 +6,7 @@
 #pragma once
 #include "RTRLighting.h"
 #include "RTRShader.h"
-
+#include <vector>
 struct RTRPoint_t {
     float x, y, z;
 };
@@ -30,12 +30,14 @@ public:
 public:
     unsigned int m_NumVertices{ 0 };
     unsigned int m_NumFaces{ 0 };
+    std::vector<float> vertices;
+    std::vector<unsigned int> faces;
     RTRPoint_t* m_VertexPoints{ nullptr };
     RTRFace_t* m_Faces{ nullptr };
     RTRMaterial_t m_Material{ {0.19225, 0.19225, 0.19225 }, { 0.50754, 0.50754, 0.50754 }, { 0.508273, 0.508273, 0.508273 }, 128.0 };
-    unsigned int m_VertexBuffer{ 0 };
-    unsigned int m_VertexArray{ 0 };
-    unsigned int m_FaceElementBuffer{ 0 };
+    unsigned int m_VertexBuffer = 0;
+    unsigned int m_VertexArray = 0;
+    unsigned int m_FaceElementBuffer = 0;
 };
 
 //-----------------------------------------------------------------------------

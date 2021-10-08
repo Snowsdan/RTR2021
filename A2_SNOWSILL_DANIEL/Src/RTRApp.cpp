@@ -74,7 +74,7 @@ int RTRApp::Init()
     glFrontFace(GL_CCW);
 
     glEnable(GL_DEBUG_OUTPUT);
-    //glDebugMessageCallback(MessageCallback, 0);
+    glDebugMessageCallback(MessageCallback, 0);
 
     std::cout << "RTR:MESSAGE: OpenGL version " << GLVersion.major << "." << GLVersion.minor << " initialised." << std::endl;
     return 0;

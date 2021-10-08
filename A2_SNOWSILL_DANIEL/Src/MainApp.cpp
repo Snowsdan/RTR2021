@@ -30,7 +30,7 @@ int MainApp::Init()
     }
 
     // Create and initialise camera
-    m_Camera = new RTRCamera(glm::vec3(1.5, 2.0, 10.0), glm::vec3(0.0, 1.0, 0.0));
+    m_Camera = new RTRCamera(glm::vec3(-5.5, 2.0, 2.0), glm::vec3(0.0, 1.0, 0.0));
 
     // Create and initialise lighting model
     m_LightingModel = new RTRLightingModel();
@@ -174,6 +174,7 @@ void MainApp::CheckInput()
                     case SDLK_DOWN: m_TiltingDown = false; break;
                 }
                 break;
+        
         }
     }
 }
@@ -219,7 +220,7 @@ void MainApp::RenderFrame()
     glUseProgram(m_DefaultShader->GetId());
     m_DefaultShader->SetFloat("u_CurTime", (float)m_CurTime);
     m_DefaultShader->SetFloat("u_TimeDelta", (float)m_TimeDelta);
-    //m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
+    m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
     m_DefaultShader->SetMat4("u_ViewMatrix", m_ViewMatrix);
     m_DefaultShader->SetMat4("u_ProjectionMatrix", m_ProjectionMatrix);
     m_DefaultShader->SetCamera("u_Camera", *m_Camera);
@@ -233,7 +234,6 @@ void MainApp::RenderFrame()
     m_Console->Render("DEBUG", m_FPS,
         m_Camera->m_Position.x, m_Camera->m_Position.y, m_Camera->m_Position.z,
         m_Camera->m_Yaw, m_Camera->m_Pitch);
-
     // Swap buffers
     SDL_GL_SwapWindow(m_SDLWindow);
 }

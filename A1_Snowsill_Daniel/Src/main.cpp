@@ -11,7 +11,7 @@ static const char* MAIN_WINDOW_TITLE = "COSC1226 - Assignment 1";
 
 int main(int argc, char** argv)
 {
-    RTRApp* app = new RTRApp(MAIN_WINDOW_TITLE, true , 800, 600);
+    RTRApp* app = new RTRApp(MAIN_WINDOW_TITLE, false , 800, 600);
     if (int err = app->Init() != 0) {
         std::cout << "RTR:ERROR: Failed to initialise application. Please see error messages for details..." << std::endl;
         return -1;

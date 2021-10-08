@@ -6,13 +6,13 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <vector>
 #include "RTRApp.h"
 #include "RTRShader.h"
 #include "RTRCamera.h"
 #include "RTRLighting.h"
 #include "RTRObject.h"
 #include "Console.h"
-
 class MainApp : public RTRApp
 {
 public:
