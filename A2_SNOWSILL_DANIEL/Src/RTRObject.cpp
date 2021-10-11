@@ -23,7 +23,7 @@ void RTRObject::Init()
     glGenBuffers(1, &m_VertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
     //glBufferData(GL_ARRAY_BUFFER, m_NumVertices * sizeof(RTRPoint_t), m_VertexPoints, GL_STATIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_NumVertices * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &m_VertexArray);
     glBindVertexArray(m_VertexArray);
@@ -57,10 +57,31 @@ void RTRObject::End()
     if (m_Faces != nullptr) { delete m_Faces; m_Faces = nullptr; }
 }
 
+bool RTRObject::checkCollision(BoundingBox* first, BoundingBox* second) {
+
+    return (first->maxX >= second->minX && first->minX <= second->maxX)
+        && (first->maxZ >= second->minZ && first->minZ <= second->maxZ);
+
+}
+
+
+bool RTRObject::checkCollision(BoundingBox* first, BoundingSphere* second) {
+    return false;
+}
+
+
+bool RTRObject::checkCollision(BoundingSphere* first, BoundingSphere* second) {
+
+    float distance = sqrt((first->center.x - second->center.x) * (first->center.x - second->center.x) +
+        (first->center.z - second->center.z) * (first->center.z - second->center.z));
+
+    return distance < (first->radius + second->radius);
+}
+
 //-----------------------------------------------------------------------------
 void RTRCube::Init()
 {
-   
+
     vertices = {
         //Front Face
        //     points        
@@ -78,10 +99,10 @@ void RTRCube::Init()
 
        //Back Face
        //     points        
-       -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-       0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
+       0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+       -0.5f, -0.5f, -0.5f,
+      0.5f, -0.5f, -0.5f,
 
       //Right Face
       //     points        
@@ -121,7 +142,7 @@ void RTRCube::Init()
        ////Top face indices
        16, 18, 17,
        16, 19, 18,
-       ////Bottom face indices
+       //Bottom face indices
        20, 22, 21,
        20, 23, 22
     };
@@ -129,5 +150,30 @@ void RTRCube::Init()
     m_NumFaces = faces.size();
     m_NumVertices = vertices.size();
 
+    BoundingBox* AABB = new BoundingBox();
+    AABB->minX = -0.5;
+    AABB->maxX = 0.5;
+    AABB->minZ = -0.5;
+    AABB->maxZ = 0.5;
+
+    collider = AABB;
+    
     RTRObject::Init();
+}
+
+//Translates the object by translating model matrix and modifying other attributes
+void RTRCube::Translate(glm::vec3 translation) {
+    model = glm::translate(model, translation);
+    ((BoundingBox*)collider)->minX += translation.x;
+    ((BoundingBox*)collider)->maxX += translation.x;
+    ((BoundingBox*)collider)->minZ += translation.z;
+    ((BoundingBox*)collider)->maxZ += translation.z;
+}
+
+void  RTRCube::Scale(glm::vec3 scaleFactor) {
+    model = glm::scale(model, scaleFactor);
+    ((BoundingBox*)collider)->minX *= scaleFactor.x;
+    ((BoundingBox*)collider)->maxX *= scaleFactor.x;
+    ((BoundingBox*)collider)->minZ *= scaleFactor.z;
+    ((BoundingBox*)collider)->minZ *= scaleFactor.z;
 }

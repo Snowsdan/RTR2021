@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\glad\glad.c" />
+    <ClCompile Include="Src\Collider.cpp" />
+    <ClCompile Include="Src\GameLevel.cpp" />
     <ClCompile Include="Src\RTRObject.cpp" />
     <ClCompile Include="Src\Console.cpp" />
     <ClCompile Include="Src\RTRApp.cpp" />
@@ -27,6 +29,8 @@
     <ClCompile Include="Src\RTRShader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Collider.h" />
+    <ClInclude Include="Src\GameLevel.h" />
     <ClInclude Include="Src\RTRCamera.h" />
     <ClInclude Include="Src\RTRObject.h" />
     <ClInclude Include="Src\Console.h" />

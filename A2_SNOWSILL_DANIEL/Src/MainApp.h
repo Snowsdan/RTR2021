@@ -13,6 +13,9 @@
 #include "RTRLighting.h"
 #include "RTRObject.h"
 #include "Console.h"
+#include "GameLevel.h"
+
+
 class MainApp : public RTRApp
 {
 public:
@@ -31,6 +34,7 @@ private:
     RTRLightingModel* m_LightingModel{ nullptr };
     RTRObject* m_Cube{ nullptr };
     RTRObject* m_PlasmaCube{ nullptr };
+    GameLevel* gameLevel{ nullptr };
     Console* m_Console{ nullptr };
 
     bool m_MovingForward{ false };

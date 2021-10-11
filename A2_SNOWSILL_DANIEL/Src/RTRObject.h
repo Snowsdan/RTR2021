@@ -6,6 +6,7 @@
 #pragma once
 #include "RTRLighting.h"
 #include "RTRShader.h"
+#include "Collider.h"
 #include <vector>
 struct RTRPoint_t {
     float x, y, z;
@@ -38,6 +39,20 @@ public:
     unsigned int m_VertexBuffer = 0;
     unsigned int m_VertexArray = 0;
     unsigned int m_FaceElementBuffer = 0;
+
+    glm::mat4 model = glm::mat4(1.0);
+    glm::vec3 position = glm::vec3(0.0);
+    glm::vec3 rotation = glm::vec3(0.0);
+    glm::vec3 scale = glm::vec3(0.0);
+
+    Collider* collider;
+    bool checkCollision(BoundingBox* first, BoundingBox* second);
+    bool checkCollision(BoundingBox* first, BoundingSphere* second);
+    bool checkCollision(BoundingSphere* first, BoundingSphere* second);
+
+    void handleCollision(glm::vec3 colPoint);
+
+    
 };
 
 //-----------------------------------------------------------------------------
@@ -48,4 +63,8 @@ public:
     ~RTRCube() {}
     virtual void Init();
     virtual const char* GetName() { return "RTRCube"; }
+    void Translate(glm::vec3 translation);
+    void Scale(glm::vec3 scaleFactor);
+
+    
 };

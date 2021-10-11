@@ -109,11 +109,13 @@ int MainApp::Init()
 
     // Create two cube objects
     // You might want to maintain a vector of objects for your assignment
-    m_Cube = new RTRCube();
+    /*m_Cube = new RTRCube();
     m_Cube->Init();
     
     m_PlasmaCube = new RTRCube();
-    m_PlasmaCube->Init();
+    m_PlasmaCube->Init();*/
+
+    gameLevel = new GameLevel(m_ProjectionMatrix);
 
     // Create and initialise the debug console/overlay
     m_Console = new Console();
@@ -124,8 +126,6 @@ int MainApp::Init()
 
 void MainApp::Done()
 {
-    m_Cube->End(); delete m_Cube;
-    m_PlasmaCube->End(); delete m_PlasmaCube;
     m_Console->End(); delete m_Console;
     delete m_PlasmaShader;
     delete m_DefaultShader;
@@ -206,7 +206,7 @@ void MainApp::RenderFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render the plasma cube using the plasma shader
-    glUseProgram(m_PlasmaShader->GetId());
+    /*glUseProgram(m_PlasmaShader->GetId());
     m_PlasmaShader->SetFloat("u_CurTime", (float)m_CurTime);
     m_PlasmaShader->SetFloat("u_TimeDelta", (float)m_TimeDelta);
     m_PlasmaShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
@@ -214,22 +214,24 @@ void MainApp::RenderFrame()
     m_PlasmaShader->SetMat4("u_ProjectionMatrix", m_ProjectionMatrix);
     m_PlasmaShader->SetCamera("u_Camera", *m_Camera);
     m_PlasmaShader->SetLightingModel(*m_LightingModel);
-    m_PlasmaCube->Render(m_PlasmaShader);
+    m_PlasmaCube->Render(m_PlasmaShader);*/
 
-    // Render the shaded cube using the default blinn-phong shader
-    glUseProgram(m_DefaultShader->GetId());
-    m_DefaultShader->SetFloat("u_CurTime", (float)m_CurTime);
-    m_DefaultShader->SetFloat("u_TimeDelta", (float)m_TimeDelta);
-    m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
-    m_DefaultShader->SetMat4("u_ViewMatrix", m_ViewMatrix);
-    m_DefaultShader->SetMat4("u_ProjectionMatrix", m_ProjectionMatrix);
-    m_DefaultShader->SetCamera("u_Camera", *m_Camera);
-    m_DefaultShader->SetLightingModel(*m_LightingModel);
+    //// Render the shaded cube using the default blinn-phong shader
+    //glUseProgram(m_DefaultShader->GetId());
+    //m_DefaultShader->SetFloat("u_CurTime", (float)m_CurTime);
+    //m_DefaultShader->SetFloat("u_TimeDelta", (float)m_TimeDelta);
+    //m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
+    //m_DefaultShader->SetMat4("u_ViewMatrix", m_ViewMatrix);
+    //m_DefaultShader->SetMat4("u_ProjectionMatrix", m_ProjectionMatrix);
+    //m_DefaultShader->SetCamera("u_Camera", *m_Camera);
+    //m_DefaultShader->SetLightingModel(*m_LightingModel);
 
-    m_ModelMatrix = glm::translate(m_ModelMatrix, glm::vec3(3.0, 0.0, 0.0));
-    m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
-    m_Cube->Render(m_DefaultShader);
+    //m_ModelMatrix = glm::translate(m_ModelMatrix, glm::vec3(3.0, 0.0, 0.0));
+    //m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
+    //m_Cube->Render(m_DefaultShader);
     
+    gameLevel->RenderScene((float)m_CurTime, (float)m_TimeDelta, m_ViewMatrix, m_Camera);
+
     // Print out all debug info
     m_Console->Render("DEBUG", m_FPS,
         m_Camera->m_Position.x, m_Camera->m_Position.y, m_Camera->m_Position.z,
