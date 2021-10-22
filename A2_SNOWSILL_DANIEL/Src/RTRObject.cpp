@@ -3,7 +3,11 @@
 //-----------------------------------------------------------------------------
 // RMIT University, COSC1226: Real-Time Rendering and 3D Game Programming
 //-----------------------------------------------------------------------------
+
+#define _USE_MATH_DEFINES
 #include <iostream>
+#include <cmath>
+
 #include "RTRObject.h"
 
 // README / TODO - This is just a simple start.
@@ -14,6 +18,9 @@
 // optimisation techniques that will add marks - for example your uniform grid implementation. 
 // * For this assignment you can hardcode the vertex buffers for the differnet shapes (see cube) and then 
 // scale, place and animate them with transformation matrices.
+
+
+
 
 //-----------------------------------------------------------------------------
 void RTRObject::Init()
@@ -57,27 +64,18 @@ void RTRObject::End()
     if (m_Faces != nullptr) { delete m_Faces; m_Faces = nullptr; }
 }
 
-bool RTRObject::checkCollision(BoundingBox* first, BoundingBox* second) {
-
-    return (first->maxX >= second->minX && first->minX <= second->maxX)
-        && (first->maxZ >= second->minZ && first->minZ <= second->maxZ);
-
+//Translates the object by translating model matrix and modifying other attributes
+void RTRObject::Translate(glm::vec3 translation) {
+    model = glm::translate(model, translation);
+    collider->Translate(translation);
 }
 
-
-bool RTRObject::checkCollision(BoundingBox* first, BoundingSphere* second) {
-    return false;
+void RTRObject::Scale(glm::vec3 scale) {
+    model = glm::scale(model, scale);
+    collider->Scale(scale);
 }
 
-
-bool RTRObject::checkCollision(BoundingSphere* first, BoundingSphere* second) {
-
-    float distance = sqrt((first->center.x - second->center.x) * (first->center.x - second->center.x) +
-        (first->center.z - second->center.z) * (first->center.z - second->center.z));
-
-    return distance < (first->radius + second->radius);
-}
-
+#pragma region RTRCube
 //-----------------------------------------------------------------------------
 void RTRCube::Init()
 {
@@ -150,30 +148,77 @@ void RTRCube::Init()
     m_NumFaces = faces.size();
     m_NumVertices = vertices.size();
 
-    BoundingBox* AABB = new BoundingBox();
-    AABB->minX = -0.5;
-    AABB->maxX = 0.5;
-    AABB->minZ = -0.5;
-    AABB->maxZ = 0.5;
-
-    collider = AABB;
-    
+    collider = new BoundingBox(-0.5, 0.5, -0.5, 0.5, glm::vec3(0.0));
+   
     RTRObject::Init();
 }
 
-//Translates the object by translating model matrix and modifying other attributes
-void RTRCube::Translate(glm::vec3 translation) {
-    model = glm::translate(model, translation);
-    ((BoundingBox*)collider)->minX += translation.x;
-    ((BoundingBox*)collider)->maxX += translation.x;
-    ((BoundingBox*)collider)->minZ += translation.z;
-    ((BoundingBox*)collider)->maxZ += translation.z;
-}
+#pragma endregion 
 
-void  RTRCube::Scale(glm::vec3 scaleFactor) {
-    model = glm::scale(model, scaleFactor);
-    ((BoundingBox*)collider)->minX *= scaleFactor.x;
-    ((BoundingBox*)collider)->maxX *= scaleFactor.x;
-    ((BoundingBox*)collider)->minZ *= scaleFactor.z;
-    ((BoundingBox*)collider)->minZ *= scaleFactor.z;
+#pragma region RTRSphere
+
+//This code was taken from: http://www.songho.ca/opengl/gl_sphere.html
+void RTRSphere::Init() {
+
+    float radius = 0.5f;
+    float x, y, z, xy, k1, k2;                      // vertex position
+    float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
+    float s, t;                                     // vertex texCoord
+    
+    float sectorCount = 50.0f;
+    float stackCount = 50.0f;
+    float sectorStep = 2 * M_PI / sectorCount;
+    float stackStep = M_PI / stackCount;
+    float sectorAngle, stackAngle;
+
+    for (int i = 0; i <= stackCount; ++i)
+    {
+        stackAngle = M_PI / 2.0f - i * stackStep;        // starting from pi/2 to -pi/2
+        xy = radius * cosf(stackAngle);             // r * cos(u)
+        z = radius * sinf(stackAngle);              // r * sin(u)
+
+        k1 = i * (sectorCount + 1);     // beginning of current stack
+        k2 = k1 + sectorCount + 1;      // beginning of next stack
+
+        // add (sectorCount+1) vertices per stack
+        // the first and last vertices have same position and normal, but different tex coords
+        for (int j = 0; j <= sectorCount; ++j, ++k1, ++k2)
+        {
+            sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+
+            // vertex position (x, y, z)
+            x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+            y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+
+            // 2 triangles per sector excluding first and last stacks
+            // k1 => k2 => k1+1
+            if (i != 0)
+            {
+                faces.push_back(k1);
+                faces.push_back(k2);
+                faces.push_back(k1 + 1);
+            }
+
+            // k1+1 => k2 => k2+1
+            if (i != (stackCount - 1))
+            {
+                faces.push_back(k1 + 1);
+                faces.push_back(k2);
+                faces.push_back(k2 + 1);
+            }
+        }
+    }
+
+    m_NumFaces = faces.size();
+    m_NumVertices = vertices.size();
+
+    sphereRadius = radius;
+    velocity = glm::vec3(0.001, 0.0, 0.001);
+    collider = new BoundingSphere(sphereRadius, glm::vec3(0.0));
+
+    RTRObject::Init();
 }
+#pragma endregion
