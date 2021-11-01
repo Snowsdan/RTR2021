@@ -22,15 +22,18 @@
     <ClCompile Include="Include\glad\glad.c" />
     <ClCompile Include="Src\Collider.cpp" />
     <ClCompile Include="Src\GameLevel.cpp" />
+    <ClCompile Include="Src\Pegs.cpp" />
     <ClCompile Include="Src\RTRObject.cpp" />
     <ClCompile Include="Src\Console.cpp" />
     <ClCompile Include="Src\RTRApp.cpp" />
     <ClCompile Include="Src\MainApp.cpp" />
     <ClCompile Include="Src\RTRShader.cpp" />
+    <ClCompile Include="Src\SkyBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Collider.h" />
     <ClInclude Include="Src\GameLevel.h" />
+    <ClInclude Include="Src\Pegs.h" />
     <ClInclude Include="Src\RTRCamera.h" />
     <ClInclude Include="Src\RTRObject.h" />
     <ClInclude Include="Src\Console.h" />
@@ -38,8 +41,13 @@
     <ClInclude Include="Src\RTRApp.h" />
     <ClInclude Include="Src\RTRLighting.h" />
     <ClInclude Include="Src\RTRShader.h" />
+    <ClInclude Include="Src\SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Src\BasicShader.frag" />
+    <None Include="Src\BasicShader.vert" />
+    <None Include="Src\ReflectiveShader.frag" />
+    <None Include="Src\ReflectiveShader.vert" />
     <None Include="Src\RTRDefault.frag">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -60,6 +68,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="Src\SkyBoxShader.frag" />
+    <None Include="Src\SkyBoxShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

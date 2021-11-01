@@ -9,6 +9,7 @@ out vec4 f_FragColor;
 in VertexData {
     vec3 FragPos;
     vec3 Normal;
+    vec2 texCoord;
 } fs_in;
 
 struct RTRCamera {
@@ -40,14 +41,16 @@ struct RTRLight {
 
 struct RTRMaterial {
     vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
+    sampler2D Diffuse;
+    sampler2D Specular;
     float Shininess;
 };
 
 uniform mat4 u_ModelMatrix;
 uniform mat4 u_ViewMatrix;
 uniform mat4 u_ProjectionMatrix;
+
+uniform vec2 scaleFactor;
 
 uniform int         u_NumLights;
 uniform RTRLight    u_Lights[RTR_MAX_LIGHTS];
@@ -58,6 +61,7 @@ uniform float u_CurTime;
 
 void main() 
 {
+    vec2 scaledTexCoord = scaleFactor * fs_in.texCoord;
     //vec3 N = normalize(cross(dFdx(fs_in.FragPos), dFdy(fs_in.FragPos)));
     vec3 N = normalize(transpose(inverse(mat3(u_ModelMatrix))) * fs_in.Normal);
     
@@ -66,7 +70,7 @@ void main()
         float attenuation = 1.0;
 
         // calc ambient
-        vec3 ambient = u_Lights[cur_light].Ambient * u_ObjectMaterial.Ambient;
+        vec3 ambient = u_Lights[cur_light].Ambient * texture(u_ObjectMaterial.Diffuse, scaledTexCoord).rgb;
     
         // calc diffuse
         vec3 L;
@@ -85,7 +89,7 @@ void main()
         }
         L = normalize(L);
         float d = max(dot(N, L), 0.0);
-        vec3 diffuse = u_Lights[cur_light].Diffuse * u_ObjectMaterial.Diffuse * d;
+        vec3 diffuse = u_Lights[cur_light].Diffuse * texture(u_ObjectMaterial.Diffuse, scaledTexCoord).rgb * d;
     
         // calc specular
         vec3 V = normalize(u_Camera.Position - fs_in.FragPos);
@@ -95,7 +99,7 @@ void main()
         // Blinn-Phong
         vec3 H = normalize(L + V);
         float s = pow(max(dot(N, H), 0.0), u_ObjectMaterial.Shininess);
-        vec3 specular = u_Lights[cur_light].Specular * u_ObjectMaterial.Specular * s;
+        vec3 specular = u_Lights[cur_light].Specular * texture(u_ObjectMaterial.Specular, scaledTexCoord).rgb * s;
 
         final_color += (ambient + attenuation*(diffuse + specular));
     }

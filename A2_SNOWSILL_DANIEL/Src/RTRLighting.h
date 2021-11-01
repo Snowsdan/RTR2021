@@ -34,8 +34,8 @@ struct RTRLight_t
 struct RTRMaterial_t
 {
     glm::vec3 Ambient;
-    glm::vec3 Diffuse;
-    glm::vec3 Specular;
+    int Diffuse;
+    int Specular;
     float Shininess;
 };
 

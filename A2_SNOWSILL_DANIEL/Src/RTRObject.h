@@ -8,6 +8,7 @@
 #include "RTRShader.h"
 #include "Collider.h"
 #include <vector>
+#include <stb/stb_image.h>
 
 
 
@@ -32,32 +33,35 @@ public:
     RTRObject() {}
     ~RTRObject() {}
     virtual void Init();
-    virtual void Render(RTRShader* shader);
+    virtual void Render(RTRShader* shader) = 0;
     virtual void End();
     void SetMaterial(RTRMaterial_t mat) { m_Material = mat; }
     virtual const char* GetName() { return "RTRObject"; }
     void Translate(glm::vec3 translation);
     void Scale(glm::vec3 scale);
-
-public:
+    glm::mat4 model = glm::mat4(1.0);
+    Collider* collider;
+    glm::vec3 velocity;
+    Transform transform;
+    glm::vec2 scaleFactor;
+    glm::vec3 colour;
+protected:
     unsigned int m_NumVertices{ 0 };
     unsigned int m_NumFaces{ 0 };
     std::vector<float> vertices;
     std::vector<unsigned int> faces;
     RTRPoint_t* m_VertexPoints{ nullptr };
     RTRFace_t* m_Faces{ nullptr };
-    RTRMaterial_t m_Material{ {0.19225, 0.19225, 0.19225 }, { 0.50754, 0.50754, 0.50754 }, { 0.508273, 0.508273, 0.508273 }, 128.0 };
+    RTRMaterial_t m_Material{ {0.19225, 0.19225, 0.19225 }, { 0 }, { 0 }, 128.0 };
+    
     unsigned int m_VertexBuffer = 0;
     unsigned int m_VertexArray = 0;
     unsigned int m_FaceElementBuffer = 0;
 
-    glm::mat4 model = glm::mat4(1.0);
-    
-    Transform transform;
-    
-    Collider* collider;
-
-    glm::vec3 velocity;
+    unsigned int textureID = 0;
+    int width, height, numChannels;
+    unsigned char* data;
+   
     
 };
 
@@ -68,7 +72,8 @@ public:
     RTRCube() : RTRObject() {}
     ~RTRCube() {}
 
-    void Init();
+    void Render(RTRShader* shader);
+    void Init(const char* texturePath);
     virtual const char* GetName() { return "RTRCube"; }    
 };
 
@@ -77,9 +82,16 @@ class RTRSphere : public RTRObject {
 public:
     RTRSphere() : RTRObject() {}
     ~RTRSphere() {}
-
+    void Render(RTRShader* shader);
     void Init();
 
     float sphereRadius;
 
+};
+
+class RTRCylinder : public RTRObject {
+    void Render(RTRShader* shader);
+    void Init(const char* texturePath);
+
+    float cylinderRadius;
 };

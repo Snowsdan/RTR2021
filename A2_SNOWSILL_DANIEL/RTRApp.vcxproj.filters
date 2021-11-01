@@ -36,6 +36,18 @@
     <ClCompile Include="Src\RTRObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Collider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\GameLevel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\SkyBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Pegs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\RTRApp.h">
@@ -59,6 +71,18 @@
     <ClInclude Include="Src\RTRCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\GameLevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\SkyBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Pegs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\RTRDefault.frag">
@@ -74,6 +98,24 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Src\RTRDefault.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\SkyBoxShader.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\SkyBoxShader.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\BasicShader.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\BasicShader.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\ReflectiveShader.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Src\ReflectiveShader.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

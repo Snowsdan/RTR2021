@@ -64,16 +64,16 @@ public:
 
     void SetMaterial(const char* name, RTRMaterial_t& mat) {
         SetVec3(MakeStructName(name, "Ambient"), mat.Ambient);
-        SetVec3(MakeStructName(name, "Diffuse"), mat.Diffuse);
-        SetVec3(MakeStructName(name, "Specular"), mat.Specular);
+        SetInt(MakeStructName(name, "Diffuse"), mat.Diffuse);
+        SetInt(MakeStructName(name, "Specular"), mat.Specular);
         SetFloat(MakeStructName(name, "Shininess"), mat.Shininess);
     }
     void SetArrayMaterial(const char* name, int array_index, RTRMaterial_t& mat) {
         char full_name[MAX_UNIFORM_NAME+1];
         sprintf_s(full_name, MAX_UNIFORM_NAME, "%s[%d].", name, array_index);
         SetVec3(MakeStructName(full_name, "Ambient"), mat.Ambient);
-        SetVec3(MakeStructName(full_name, "Diffuse"), mat.Diffuse);
-        SetVec3(MakeStructName(full_name, "Specular"), mat.Specular);
+        SetInt(MakeStructName(full_name, "Diffuse"), mat.Diffuse);
+        SetInt(MakeStructName(full_name, "Specular"), mat.Specular);
         SetFloat(MakeStructName(full_name, "Shininess"), mat.Shininess);
     }
 

@@ -10,35 +10,25 @@
 
 #include "RTRObject.h"
 
-// README / TODO - This is just a simple start.
-// * For your assignment, think carefully about how Shaders, Materials and Objects will hang together.
-// * Have a hierarchy of differnet object types (static object, moving object, hierarchical object, object with force, etc...
-// * Don't worry too much about optimising the buffer handling by, for example, merging all objects into a single 
-// vertex buffer. Or sorting object based on shader or material to minimize switches. Spend your time on more imprtant 
-// optimisation techniques that will add marks - for example your uniform grid implementation. 
-// * For this assignment you can hardcode the vertex buffers for the differnet shapes (see cube) and then 
-// scale, place and animate them with transformation matrices.
-
-
-
-
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void RTRObject::Init()
 {
-    float sizeofFace = faces.size() * sizeof(float);
-    float mult = m_NumFaces * sizeof(float);
     glGenBuffers(1, &m_VertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
     //glBufferData(GL_ARRAY_BUFFER, m_NumVertices * sizeof(RTRPoint_t), m_VertexPoints, GL_STATIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER, m_NumVertices * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &m_VertexArray);
     glBindVertexArray(m_VertexArray);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    //5 numbers for each vertex (3 for position, 2 for texture coords
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glGenBuffers(1, &m_FaceElementBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FaceElementBuffer);
@@ -46,14 +36,7 @@ void RTRObject::Init()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(unsigned int), &faces[0], GL_STATIC_DRAW);
 }
 
-void RTRObject::Render(RTRShader *shader)
-{
-    shader->SetMaterial("u_ObjectMaterial", m_Material);
-    glBindVertexArray(m_VertexArray);
-    glDrawElements(GL_TRIANGLES, m_NumFaces, GL_UNSIGNED_INT, 0);
-    //glDrawArrays(GL_TRIANGLES, 0, m_NumVertices);
-    glBindVertexArray(0);
-}
+
 
 void RTRObject::End()
 {
@@ -71,57 +54,59 @@ void RTRObject::Translate(glm::vec3 translation) {
 }
 
 void RTRObject::Scale(glm::vec3 scale) {
+    scaleFactor = glm::vec2(scale.x, scale.z);
     model = glm::scale(model, scale);
     collider->Scale(scale);
 }
 
 #pragma region RTRCube
 //-----------------------------------------------------------------------------
-void RTRCube::Init()
+void RTRCube::Init(const char* texturePath)
 {
 
     vertices = {
-        //Front Face
-       //     points        
-       -0.5f, 0.5f, 0.5f,
-         0.5f, 0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-       -0.5f, -0.5f, 0.5f,
+            //Vertices        //Texture Coordinates
+         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-       //Left Face
-       //     points        
-        -0.5f, 0.5f, -0.5f,
-       -0.5f, 0.5f, 0.5f,
-      -0.5f, -0.5f, 0.5f,
-       -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-       //Back Face
-       //     points        
-       0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-       -0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-      //Right Face
-      //     points        
-      0.5f, 0.5f, 0.5f,
-     0.5f, 0.5f, -0.5f,
-     0.5f, -0.5f,-0.5f,
-     0.5f, -0.5f, 0.5f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-     //Top Face
-     //     points        
-     -0.5f, 0.5f, -0.5f,
-      0.5f, 0.5f, -0.5f,
-       0.5f, 0.5f, 0.5f,
-      -0.5f, 0.5f, 0.5f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-      //Bottom Face
-      //     points        
-      0.5f, -0.5f, -0.5f,
-     -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, 0.5f,
-       0.5f, -0.5f, 0.5f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     
     faces = {
@@ -146,13 +131,58 @@ void RTRCube::Init()
     };
 
     m_NumFaces = faces.size();
-    m_NumVertices = vertices.size();
+    m_NumVertices = 36;
 
     collider = new BoundingBox(-0.5, 0.5, -0.5, 0.5, glm::vec3(0.0));
-   
+    if (texturePath != nullptr) {
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+
+
+        unsigned char* data = stbi_load(texturePath, &width, &height, &numChannels, 0);
+        if (data)
+        {
+
+            //Check for number of colour channels
+            GLenum format;
+            if (numChannels == 1)
+                format = GL_RED;
+            else if (numChannels == 3)
+                format = GL_RGB;
+            else if (numChannels == 4)
+                format = GL_RGBA;
+
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "FAILED TO LOAD TEXTURE: " << texturePath <<  std::endl;
+            stbi_image_free(data);
+        }
+    }
+    
     RTRObject::Init();
 }
-
+void RTRCube::Render(RTRShader* shader)
+{
+    shader->SetMaterial("u_ObjectMaterial", m_Material);
+    //shader->SetInt("u_ObjectMaterial.Diffuse", 0);
+    glBindVertexArray(m_VertexArray);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    //glDrawElements(GL_TRIANGLES, m_NumFaces, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
 #pragma endregion 
 
 #pragma region RTRSphere
@@ -160,13 +190,13 @@ void RTRCube::Init()
 //This code was taken from: http://www.songho.ca/opengl/gl_sphere.html
 void RTRSphere::Init() {
 
-    float radius = 0.5f;
+    float radius = 0.25f;
     float x, y, z, xy, k1, k2;                      // vertex position
     float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
     float s, t;                                     // vertex texCoord
     
-    float sectorCount = 50.0f;
-    float stackCount = 50.0f;
+    float sectorCount = 75.0f;
+    float stackCount = 75.0f;
     float sectorStep = 2 * M_PI / sectorCount;
     float stackStep = M_PI / stackCount;
     float sectorAngle, stackAngle;
@@ -216,9 +246,42 @@ void RTRSphere::Init() {
     m_NumVertices = vertices.size();
 
     sphereRadius = radius;
-    velocity = glm::vec3(0.001, 0.0, 0.001);
+    velocity = glm::vec3(0.003, 0.0, -0.015);
     collider = new BoundingSphere(sphereRadius, glm::vec3(0.0));
 
-    RTRObject::Init();
+    glGenBuffers(1, &m_VertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+    glGenVertexArrays(1, &m_VertexArray);
+    glBindVertexArray(m_VertexArray);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &m_FaceElementBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_FaceElementBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(unsigned int), &faces[0], GL_STATIC_DRAW);
+
 }
+
+void RTRSphere::Render(RTRShader* shader)
+{
+    shader->SetMaterial("u_ObjectMaterial", m_Material);
+    shader->SetInt("boxTexture", 0);
+
+    glBindVertexArray(m_VertexArray);
+    glDrawElements(GL_TRIANGLES, m_NumFaces, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+#pragma endregion
+
+#pragma region Cylinder
+void RTRCylinder::Init(const char* texturePath) {
+    
+}
+
 #pragma endregion

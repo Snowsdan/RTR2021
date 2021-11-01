@@ -30,7 +30,7 @@ int MainApp::Init()
     }
 
     // Create and initialise camera
-    m_Camera = new RTRCamera(glm::vec3(-5.5, 2.0, 2.0), glm::vec3(0.0, 1.0, 0.0));
+    m_Camera = new RTRCamera(glm::vec3(0.0, 12.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     // Create and initialise lighting model
     m_LightingModel = new RTRLightingModel();
@@ -54,66 +54,8 @@ int MainApp::Init()
         .Linear = 0.35f,
         .Quadratic = 0.44f
     });
-    m_LightingModel->AddLight({
-        .Type = RTRLightType::PointLight,
-        .Ambient = glm::vec3(1.0, 0.0, 0.0),
-        .Diffuse = glm::vec3(1.0, 0.0, 0.0),
-        .Specular = glm::vec3(1.0, 1.0, 1.0),
-        .Position = glm::vec3(-2.0 + 3.0, 0.0, 0.0),
-        .Constant = 1.0f,
-        .Linear = 0.35f,
-        .Quadratic = 0.44f
-        });
-    // Add y-axis green spot lights
-    m_LightingModel->AddLight({
-        .Type = RTRLightType::PointLight,
-        .Ambient = glm::vec3(0.0, 0.2, 0.0),
-        .Diffuse = glm::vec3(0.0, 1.0, 0.0),
-        .Specular = glm::vec3(1.0, 1.0, 1.0),
-        .Position = glm::vec3(0.0 + 3.0, 2.0, 0.0),
-        .Constant = 1.0f,
-        .Linear = 0.35f,
-        .Quadratic = 0.44f
-        });
-    m_LightingModel->AddLight({
-        .Type = RTRLightType::PointLight,
-        .Ambient = glm::vec3(0.0, 0.2, 0.0),
-        .Diffuse = glm::vec3(0.0, 1.0, 0.0),
-        .Specular = glm::vec3(1.0, 1.0, 1.0),
-        .Position = glm::vec3(0.0 + 3.0, -2.0, 0.0),
-        .Constant = 1.0f,
-        .Linear = 0.35f,
-        .Quadratic = 0.44f
-        });
-    // Add z-axis blue spot lights
-    m_LightingModel->AddLight({
-        .Type = RTRLightType::PointLight,
-        .Ambient = glm::vec3(0.0, 0.0, 0.2),
-        .Diffuse = glm::vec3(0.0, 0.0, 1.0),
-        .Specular = glm::vec3(1.0, 1.0, 1.0),
-        .Position = glm::vec3(0.0 + 3.0, 0.0, 2.0),
-        .Constant = 1.0f,
-        .Linear = 0.35f,
-        .Quadratic = 0.44f
-        });
-    m_LightingModel->AddLight({
-        .Type = RTRLightType::PointLight,
-        .Ambient = glm::vec3(0.0, 0.0, 0.2),
-        .Diffuse = glm::vec3(0.0, 0.0, 1.0),
-        .Specular = glm::vec3(1.0, 1.0, 1.0),
-        .Position = glm::vec3(0.0 + 3.0, 0.0, -2.0),
-        .Constant = 1.0f,
-        .Linear = 0.35f,
-        .Quadratic = 0.44f
-        });
-
-    // Create two cube objects
-    // You might want to maintain a vector of objects for your assignment
-    /*m_Cube = new RTRCube();
-    m_Cube->Init();
     
-    m_PlasmaCube = new RTRCube();
-    m_PlasmaCube->Init();*/
+
 
     gameLevel = new GameLevel(m_ProjectionMatrix);
 
@@ -160,6 +102,8 @@ void MainApp::CheckInput()
                     case SDLK_RIGHT: m_TurningRight = true; break;
                     case SDLK_UP: m_TiltingUp = true; break;
                     case SDLK_DOWN: m_TiltingDown = true; break;
+                    case SDLK_l: gameLevel->LaunchBall(); break;
+                    case SDLK_k: gameLevel->debug = !gameLevel->debug;
                 }
                 break;
             case SDL_KEYUP:
@@ -205,31 +149,6 @@ void MainApp::RenderFrame()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Render the plasma cube using the plasma shader
-    /*glUseProgram(m_PlasmaShader->GetId());
-    m_PlasmaShader->SetFloat("u_CurTime", (float)m_CurTime);
-    m_PlasmaShader->SetFloat("u_TimeDelta", (float)m_TimeDelta);
-    m_PlasmaShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
-    m_PlasmaShader->SetMat4("u_ViewMatrix", m_ViewMatrix);
-    m_PlasmaShader->SetMat4("u_ProjectionMatrix", m_ProjectionMatrix);
-    m_PlasmaShader->SetCamera("u_Camera", *m_Camera);
-    m_PlasmaShader->SetLightingModel(*m_LightingModel);
-    m_PlasmaCube->Render(m_PlasmaShader);*/
-
-    //// Render the shaded cube using the default blinn-phong shader
-    //glUseProgram(m_DefaultShader->GetId());
-    //m_DefaultShader->SetFloat("u_CurTime", (float)m_CurTime);
-    //m_DefaultShader->SetFloat("u_TimeDelta", (float)m_TimeDelta);
-    //m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
-    //m_DefaultShader->SetMat4("u_ViewMatrix", m_ViewMatrix);
-    //m_DefaultShader->SetMat4("u_ProjectionMatrix", m_ProjectionMatrix);
-    //m_DefaultShader->SetCamera("u_Camera", *m_Camera);
-    //m_DefaultShader->SetLightingModel(*m_LightingModel);
-
-    //m_ModelMatrix = glm::translate(m_ModelMatrix, glm::vec3(3.0, 0.0, 0.0));
-    //m_DefaultShader->SetMat4("u_ModelMatrix", m_ModelMatrix);
-    //m_Cube->Render(m_DefaultShader);
-    
     gameLevel->RenderScene((float)m_CurTime, (float)m_TimeDelta, m_ViewMatrix, m_Camera);
 
     // Print out all debug info

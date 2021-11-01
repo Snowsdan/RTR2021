@@ -134,7 +134,7 @@ int RTRShader::Load(const char *vertexPath, const char *fragmentPath, const char
         if (!success)
         {
             glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-            std::cout << "RTR:ERROR:RTR_Shader:Could not load geometry shader file - " << geometryPath << std::endl;
+            std::cout << "RTR:ERROR:RTR_Shader:Could not load FRAGMENT shader file - " << fragmentPath << std::endl;
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" <<
                 infoLog << std::endl;
         }

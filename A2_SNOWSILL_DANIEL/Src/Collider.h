@@ -1,28 +1,47 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glad/glad.h>
 
 class Collider;
 class BoundingBox; 
 class BoundingSphere;
+
+enum Direction {
+	UP,
+	LEFT,
+	DOWN,
+	RIGHT
+};
+
+struct CollisionInfo {
+	CollisionInfo(Direction newDirection, glm::vec2 diff) {
+		direction = newDirection;
+		differenceVec = diff;
+	}
+	Direction direction;
+	glm::vec2 differenceVec;
+};
 
 class Collider {
 public:
 
 	glm::vec3 center;
 	
-	virtual bool checkCollision(Collider* collider) = 0;
-	virtual bool checkCollision(BoundingBox* collisionBox) = 0;
-	virtual bool checkCollision(BoundingSphere* collisionSphere) = 0;
+	virtual CollisionInfo* checkCollision(Collider* collider) = 0;
+	virtual CollisionInfo* checkCollision(BoundingBox* collisionBox) = 0;
+	virtual CollisionInfo* checkCollision(BoundingSphere* collisionSphere) = 0;
 
 	virtual void Translate(glm::vec3 translation) = 0;
 	virtual void Scale(glm::vec3 scale) = 0;
 
 
-	bool resolveCollision(BoundingBox* box, BoundingSphere* sphere);
-	bool resolveCollision(BoundingBox* boxA, BoundingBox* boxB);
-	bool resolveCollision(BoundingSphere* sphereA, BoundingSphere* sphereB);
+	CollisionInfo* resolveCollision(BoundingBox* box, BoundingSphere* sphere);
+	CollisionInfo* resolveCollision(BoundingBox* boxA, BoundingBox* boxB);
+	CollisionInfo* resolveCollision(BoundingSphere* sphereA, BoundingSphere* sphereB);
+	Direction FindNewDirection(glm::vec2 point);
+
+	virtual void DrawVolume() = 0;
 
 };
 
@@ -37,11 +56,13 @@ public:
 	float sizeX;
 	float sizeZ;
 
-	bool checkCollision(Collider* collider);
-	bool checkCollision(BoundingBox* collisionBox);
-	bool checkCollision(BoundingSphere* collisionSphere);
+	CollisionInfo* checkCollision(Collider* collider);
+	CollisionInfo* checkCollision(BoundingBox* collisionBox);
+	CollisionInfo* checkCollision(BoundingSphere* collisionSphere);
 	void Translate(glm::vec3 translation);
 	void Scale(glm::vec3 scale);
+
+	void DrawVolume();
 
 };
 
@@ -51,11 +72,13 @@ public:
 
 	float radius;
 
-	bool checkCollision(Collider* collider);
-	bool checkCollision(BoundingBox* collisionBox);
-	bool checkCollision(BoundingSphere* collisionSphere);
+	CollisionInfo* checkCollision(Collider* collider);
+	CollisionInfo* checkCollision(BoundingBox* collisionBox);
+	CollisionInfo* checkCollision(BoundingSphere* collisionSphere);
 	void Translate(glm::vec3 translation);
 	void Scale(glm::vec3 scale);
+
+	void DrawVolume();
 };
 
 
